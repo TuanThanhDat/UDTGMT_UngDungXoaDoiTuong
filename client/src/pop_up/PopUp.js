@@ -4,11 +4,27 @@ import SignUp from "./sign_up/sign_up";
 
 
 const PopUp = (props) => {
+
     return (
         <>
-            {(props.type == "PasswordLogin") && <PasswordLogin handleClose={props.handleClose}/>}
-            {(props.type == "FaceLogin") && <FaceLogin handleClose={props.handleClose}/>}
-            {(props.type == "SignUp") && <SignUp handleClose={props.handleClose}/>}
+            {
+                (props.type == "PasswordLogin") && 
+                <PasswordLogin 
+                    setIsLogin={props.setIsLogin} 
+                    handleClose={props.handleClose}
+                    setType={props.setType}/>
+            }
+            {
+                (props.type == "FaceLogin") && 
+                <FaceLogin setIsLogin={props.setIsLogin} handleClose={props.handleClose} setType={props.setType}/>
+            }
+            {
+                (props.type == "SignUp") && 
+                <SignUp 
+                    setIsLogin={props.setIsLogin} 
+                    handleClose={props.handleClose}
+                    setType={props.setType}/>
+            }
         </>
     )
 }

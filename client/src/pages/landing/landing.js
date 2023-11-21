@@ -6,7 +6,7 @@ import "./landing.css";
 import TopNavigate from '../../navigate/top_nav';
 
 
-const Landing = () => {
+const Landing = (props) => {
 
     // const [isOpen, setIsOpen] = useState(false);
     // const [popupType, setPopupType] = useState()
@@ -22,15 +22,7 @@ const Landing = () => {
 
     return (
         <div className='landing-box'>
-            <TopNavigate isLogin={false}/>
-            {/* {isOpen && <PopUp type={popupType} handleClose={togglePopup}/>}
-            <button onClick={() => {handleClick("PasswordLogin")}}>
-                Đăng nhập bằng mật khẩu
-            </button>
-            <button onClick={() => {handleClick("FaceLogin")}}>
-                Đăng nhập bằng khuôn mặt
-            </button> */}
-
+            <TopNavigate isLogin={props.isLogin} setIsLogin={props.setIsLogin}/>
         </div>
     )
 }
