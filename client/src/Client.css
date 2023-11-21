@@ -1,0 +1,140 @@
+*{
+  box-sizing: border-box;
+}
+body{
+  background-color: #f5f6ff;
+}
+.container{
+  padding: 10px;
+  /* background-color: red; */
+  max-width: fit-content;
+  margin:50px auto;
+}
+
+.admin-text {
+  font-size: 60px;
+  text-align: center;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  color: rgb(6, 6, 8);
+  font-weight: bold; /* In đậm */
+}
+
+
+.btn{
+  border:none;
+  padding: 7px 15px;
+  font-size: 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.btn-add {
+  margin-left:990px;
+  padding:10px;
+  margin-top: 50px; /* Khoảng cách phía trên là 50px */
+  background: rgb(14, 208, 56);
+  color: white;
+  transition: background-color 0.3s; /* Thêm hiệu ứng chuyển đổi màu trong 0.3 giây */
+}
+
+.btn-add:hover {
+  background: rgb(114, 158, 102); /* Màu sẽ chuyển khi rê chuột vào */
+}
+.btn-edit:hover{
+  background: yellowgreen; /* Màu sẽ chuyển khi rê chuột vào */
+}
+.btn-delete:hover{
+  background: orange; /* Màu sẽ chuyển khi rê chuột vào */
+}
+
+.addContainer{
+  position: absolute;
+  background-color: rgba(0,0,0,0.2);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.addContainer form{
+  width: 420px;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 50px 40px;
+  box-shadow:5px 5px 10px rgba(0,0,0,0.2) ;
+  border-radius: 5px;
+}
+.addContainer form label{
+  font-size: 20px;
+}
+.addContainer form input{
+  font-size: 18px;
+  padding: 5px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+.addContainer form button{
+  background-color: royalblue;
+  color:white;
+  font-weight: 500;
+  margin-top: 20px;
+}
+.addContainer form .close-btn{
+  margin-left: auto;
+  font-size: 18px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+  border:1px solid #000;
+  cursor: pointer;
+}
+
+.tableContainer{
+  margin-top: 10px;
+  box-shadow: 5px 5px 10px rgba(0,0,0,0.2);
+  border-radius: 5px;
+}
+
+.tableContainer table thead tr{
+  color: greenyellow;
+  background-color: rgb(77, 59, 181);
+  
+}
+.tableContainer table thead tr th,
+.tableContainer table tbody tr td{
+  min-width: 200px;
+  padding: 7px;
+  text-align: center;
+  font-size: 22px;
+}
+.tableContainer table tbody tr{
+  border : 5px solid #6e8fe2;
+  background-color: #25b0e7;
+  color:white;
+}
+.tableContainer table tbody tr td{
+  border-bottom: 5px solid #5392e3;
+  color:white;
+}
+.btn-edit,
+.btn-delete{
+  font-size: 16px;
+  padding: 10px 20px;
+  margin:0px 10px;
+}
+.btn-edit{
+  background-color: #e2f413;
+}
+.btn-delete{
+  background-color: #fa1717;
+  color:white;
+}

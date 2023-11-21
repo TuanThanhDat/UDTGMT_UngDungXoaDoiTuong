@@ -1,9 +1,0 @@
-flask
-flask-cors
-flask-session
-flask-sqlalchemy
-opencv-python
-python-dotenv
-pillow
-numpy
-deepface

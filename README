@@ -1,0 +1,8 @@
+Về phía server : 
+- Tạo môi trường ảo: python -m venv env, .\env\Scripts\activate
+- Intall: pip install -r requirements.txt
+- Di chuyển vào thư mục server: python app.py
+
+Về phía client: 
+- Di chuyển vào thư mục client: npm install -g create-react-app, npm install react-scripts
+- Thực hiện lệnh: npm install, npm start
