@@ -1,9 +1,10 @@
 flask
 flask-sqlalchemy
+sqlalchemy
 uuid
 flask-cors
 python-dotenv
-# opencv-python
+opencv-python
+deepface
 # pillow
 # numpy
-# deepface

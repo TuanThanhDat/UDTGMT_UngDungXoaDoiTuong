@@ -1,7 +1,7 @@
 
 import './sign_up.css';
 import '../../httpClient';
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
 import httpClient from '../../httpClient';
 import FormInput from '../FormInput/FormInput';
@@ -11,34 +11,60 @@ const SignUp = (props) => {
     const [values, setValues] = useState({
         name: '',
         email: '',
-        password: ''
-    })
+        password: '',
+        confirm: ''
+    });
 
     const onChange = (e) => {
+        e.preventDefault();
         setValues({...values, [e.target.name]: e.target.value});
-    }
+    };
+
+    useEffect(() => {
+        console.log(values); // This will log the updated 'values' whenever it changes.
+    }, [values]); // This useEffect will run whenever 'values' changes.
 
     const navigate = useNavigate();
 
     const handleSignUp = async(e) => {
         e.preventDefault();
-        try {
-            const resp = await httpClient.post("//localhost:5000/api/v1/signup", values);
-            console.log(resp);
-            props.handleClose();
-            props.setIsLogin(true);
-            navigate("/")
-        } 
-        catch(error) {
-            if (error.response.status !== 200) {
-                alert(error.response.data.message);
+        if (!/^[A-Za-z0-9]{5,30}$/i.test(values["name"])){
+            alert("Invalided user name !!!");
+        }
+        else if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/.test(values["email"])) {
+            alert("Invalided email !!!");
+        }
+        else if (!/^[0-9]{5,30}$/i.test(values["password"])) {
+            alert("Invalided password !!!");
+        }
+        else {
+            try {
+                const data = new FormData();
+                data.append("name",values["name"]);
+                data.append("email",values["email"]);
+                data.append("password",values["password"]);
+
+                const resp = await httpClient.post("//localhost:5000/api/v1/signup", values);
+                console.log(resp);
+                props.setIsLogin(true);
+                props.setUserName(resp.data.user_name);
+                props.setUserToken(resp.data.user_token);
+                props.handleClose();
+                navigate("/")
+            } 
+            catch(error) {
+                if (error.response.status !== 200) {
+                    alert(error.response.data.message);
+                }
             }
         }
-    }
+    };
 
     const changePopUp = (type) => {
         props.setType(type);
-    }
+    };
+
+    const passwordMatchError = values.password !== values.confirm ? 'Passwords do not match' : '';
 
     return (
         <div className="sign-up-box">
@@ -58,7 +84,7 @@ const SignUp = (props) => {
                                 type='text' 
                                 placeholder='Please enter your user name' 
                                 onChange={onChange}
-                                errorMessage='' 
+                                errorMessage='User name just contains character a-z,A-Z and 0-9. Its length must be larger than 5 and smaller than 10!!!' 
                                 pattern="^[A-Za-z0-9]{5,30}$"
                                 required={true}
                             />
@@ -67,26 +93,28 @@ const SignUp = (props) => {
                                 type='email' 
                                 placeholder='Please enter your email' 
                                 onChange={onChange}
-                                errorMessage='' 
+                                errorMessage='Not found email!!!' 
                                 pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
                                 required={true}
                             />
                             <FormInput 
                                 name='password' 
-                                type='password' 
+                                // type='password' 
                                 placeholder='Password' 
                                 onChange={onChange}
-                                errorMessage=''
+                                errorMessage='Password is just contains number and its length must be larger thanh 5 and smaller than 10!!!'
                                 pattern="^[0-9]{5,30}$"
+                                value={values.password}
                                 required={true}
                             />
                             <FormInput 
                                 name='confirm' 
-                                type='password' 
+                                // type='password' 
                                 placeholder='Confirm your password' 
                                 onChange={onChange}
-                                errorMessage=''
+                                errorMessage={passwordMatchError}
                                 pattern={values.password}
+                                value={values.confirm}
                                 required={true}
                             />
                             <button 

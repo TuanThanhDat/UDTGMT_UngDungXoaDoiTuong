@@ -21,16 +21,26 @@ const PasswordLogin = props => {
 
     const handleLogin = async(e) => {
         e.preventDefault();
-        try {
-            const resp = await httpClient.post("//localhost:5000/api/v1/login", values);
-            console.log(resp);
-            props.handleClose();
-            props.setIsLogin(true);
-            navigate("/")
-        } 
-        catch(error) {
-            if (error.response.status !== 200) {
-                alert(error.response.data.message);
+        if (!/^[A-Za-z0-9]{5,30}$/i.test(values["name"])){
+            alert("Invalided user name !!!");
+        }
+        else if (!/^[0-9]{5,30}$/i.test(values["password"])) {
+            alert("Invalided password !!!");
+        }
+        else {
+            try {
+                const resp = await httpClient.post("//localhost:5000/api/v1/login", values);
+                console.log(resp);
+                props.setIsLogin(true);
+                props.setUserName(resp.data.user_name);
+                props.setUserToken(resp.data.user_token);
+                props.handleClose();
+                navigate("/")
+            } 
+            catch(error) {
+                if (error.response.status !== 200) {
+                    alert(error.response.data.message);
+                }
             }
         }
     }

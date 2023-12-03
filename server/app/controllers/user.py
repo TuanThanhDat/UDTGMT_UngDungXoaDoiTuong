@@ -1,11 +1,16 @@
 import sys
 sys.path.insert(0, '../models')
 sys.path.insert(1, '..')
+from app.controllers.face_processing import verify_face, get_embed, encode_image
 from app.extension import db
 from app.models.user import User
 
+from PIL import Image
 from uuid import uuid4
 import hashlib
+import json
+
+import numpy as np
 
 print("app controllers")
 
@@ -20,6 +25,30 @@ def create_salt():
     return uuid4().hex
 
 class User_Controller:
+    
+    def face_sign_up(self, user_name, face_image, image):
+        user = self.__get_user_by_name(user_name)
+        if user is not None:
+            user.image = encode_image(image)
+            embed = get_embed(face_image) # (2622,)
+            user.embed = json.dumps(embed.tolist())
+            db.session.commit()
+            return True
+        return False
+    
+    def face_login(self, user_name, face_img):
+        user = self.__get_user_by_name(user_name)
+        if user is not None:
+            if user.embed is not None:
+                embed = np.array(json.loads(user.embed),dtype=np.float32)
+                if verify_face(face_img, embed):
+                    auth_token = self.__create_auth_token()
+                    user.auth_token = auth_token
+                    db.session.commit()
+                    return True, user.name, auth_token
+            return False,user.name,''
+        return False,'',''
+            
         
     def check_user_name_exist(self,user_name):
         return User.query.filter_by(name=user_name).first() is not None
@@ -47,11 +76,11 @@ class User_Controller:
         isSuccessed = self.add_new_user(user_name, user_email, user_password)
         if isSuccessed:
             user = self.__get_user_by_name(user_name)
-            userID = user.id
+            userName = user.name
             auth_token = self.__create_auth_token()
             user.auth_token = auth_token
-            db.session.summit()
-            return True, userID, auth_token
+            db.session.commit()
+            return True, userName, auth_token
         return False,'',''
     
     def __get_user_by_name(self, name):
@@ -73,18 +102,18 @@ class User_Controller:
         hashed_password = hashing_password(user_password, user.salt)
         if (hashed_password == user.password):
             auth_token = self.__create_auth_token()
-            userID = user.id
+            userName = user.name
             user.auth_token = auth_token
             db.session.commit()
-            return True, userID, auth_token
+            return True, userName, auth_token
         else:
             return False,'',''
         
     def __create_auth_token(self):
         return uuid4().hex
     
-    def logout(self, userID):
-        user = self.__get_user_by_id(userID)
+    def logout(self, userName):
+        user = self.__get_user_by_name(userName)
         if (user is not None):
             user.auth_token = None
             db.session.commit()
@@ -95,5 +124,8 @@ class User_Controller:
         users = User.query.all()
         result = []
         for user in users:
-            result.append([user.id, user.name, user.email, user.auth_token])
+            embed_bytes = user.embed
+            print(type(embed_bytes))
+            np.frombuffer(embed_bytes,dtype=np.float32).tolist()
+            result.append([user.id, user.name, user.email, user.auth_token, ])
         return result

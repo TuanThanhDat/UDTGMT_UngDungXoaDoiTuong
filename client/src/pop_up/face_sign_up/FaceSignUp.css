@@ -1,4 +1,4 @@
-.f-login-box {
+.f-sign-up-box {
     position: fixed;
     background: #00000080;
     width: 100%;
@@ -10,7 +10,7 @@
     align-items: center;
 }
    
-.f-login-box .box {
+.f-sign-up-box .box {
     position: relative;
     width: 850px;
     height: 450px;
@@ -28,7 +28,7 @@
     position: fixed;
 }
 
-.f-login-box .close-icon {
+.f-sign-up-box .close-icon {
     content: 'x';
     cursor: pointer;
     position: fixed;
@@ -48,35 +48,35 @@
     font-size: 22px;
 }
 
-.f-login-box .box .image-box {
-    background: url("../../../public/signup.png");
-    background-attachment: fixed;
-    background-size: auto 100%;
+.f-sign-up-box .box .image-box {
+    /* background-color: green; */
 }
 
-/* .f-login-box .image-box .video-login {
+/* .f-sign-up-box .image-box .video-login {
     display:none;
 } */
 
-.f-login-box .box .form-box {
+.f-sign-up-box .box .form-box {
     align-items: center;
     justify-items: center;
     display: flex;
     padding: 20px;
-    padding-left: 40px;
-    padding-right: 40px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
-.f-login-box .box .form-box-container {
-    align-items: center;
-    justify-items: center;
+.f-sign-up-box .box .form-box-container {
+    /* background-color: red; */
+    align-content: center;
+    justify-content: center;
     display: grid;
-    height:auto;
+    height:100%;
+    width: 100%;
     gap: 10px;
     font-size: 12px;
 }
 
-.f-login-box .title {
+.f-sign-up-box .title {
     width: 100%;
     display: flex;
     justify-items: left;
@@ -85,14 +85,14 @@
     font-size: 20px;
 }
 
-.f-login-box .caption {
+.f-sign-up-box .caption {
     font-size: 13px;
     padding-bottom: 20px;
     cursor: pointer;
     color: #536ADE;
 }
 
-.f-login-box .other-btn {
+.f-sign-up-box .other-btn {
     /* background-color: blue; */
     font-size: 13px;
     height: 35px;
@@ -101,12 +101,12 @@
     border-radius: 3px;
 }
 
-.f-login-box .other-btn:hover {
+.f-sign-up-box .other-btn:hover {
     /* background-color: blue; */
     background-color: #DDDDDD;
 }
 
-.f-login-box .form {
+.f-sign-up-box .form {
     /* background-color: green; */
     /* height: 300px; */
     width: 100%;
@@ -116,7 +116,7 @@
     gap: 10px;
 }
 
-.f-login-box .form input{
+.f-sign-up-box .form input{
     /* background-color: blue; */
     padding-left: 5px;
     font-size: 13px;
@@ -125,13 +125,13 @@
     border-radius: 3px;
 }
 
-.f-login-box .form .file-picker {
+.f-sign-up-box .form .file-picker {
     font-size: 13px;
     height: 30px;
     border: 0px;
 }
 
-.f-login-box .form .login-btn{
+.f-sign-up-box .form .login-btn{
     /* background-color: blue; */
     font-size: 14px;
     height: 35px;
@@ -141,7 +141,7 @@
     border-radius: 3px;
 }
 
-.f-login-box .form .login-btn:hover{
+.f-sign-up-box .form .login-btn:hover{
     /* background-color: blue; */
     /* font-size: 13px;
     height: 35px; */
@@ -150,7 +150,7 @@
     border: 1px solid #2B346C;
 }
 
-.f-login-box .form .login-btn:disabled{
+.f-sign-up-box .form .login-btn:disabled{
     /* background-color: blue; */
     /* font-size: 13px;
     height: 35px; */
