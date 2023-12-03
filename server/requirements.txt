@@ -1,9 +1,0 @@
-flask
-flask-sqlalchemy
-uuid
-flask-cors
-python-dotenv
-# opencv-python
-# pillow
-# numpy
-# deepface
