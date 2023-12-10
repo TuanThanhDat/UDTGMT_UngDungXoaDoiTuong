@@ -1,0 +1,55 @@
+.CanvasApp {
+  text-align: center;
+}
+
+#dropArea {
+  display: flex;
+  align-items: center;
+  margin: 10px auto;
+  flex-direction: column;
+  justify-content: center;
+  position: absolute;
+  width: 800px;
+  height: 550px;
+  top: 15vh;
+  border: 3px dashed black;
+}
+
+#drop-text {
+  color: #0075FF;
+  font-weight: bold;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#drop-btn {
+  margin-top: 1vh;
+  color: #0075FF;
+  position: absolute;
+  display: flex;
+  cursor: pointer;
+  left: 50%;
+}
+
+/* Rest of the styles related to the upload functionality */
+
+.control {
+  position: absolute;
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 5vh;
+}
+
+/* Add your other styles for controls as needed */
+/* Thêm đoạn mã CSS cho thanh trượt */
+.rc-slider {
+  width: 80%; /* Thiết lập chiều rộng của thanh trượt */
+  margin: 0 auto; /* Để căn giữa */
+}
+
+/* Thêm đoạn mã CSS cho đầu thanh trượt */
+.rc-slider-handle {
+  width: 20px; /* Đặt chiều rộng của đầu thanh trượt */
+  height: 20px; /* Đặt chiều cao của đầu thanh trượt */
+}
