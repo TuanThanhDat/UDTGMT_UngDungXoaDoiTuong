@@ -92,40 +92,26 @@ const handleMouseMove = (event) => {
 //Thay đổi độ sáng của ảnh
 // Hàm điều chỉnh độ sáng của ảnh trên canvas
 const adjustBrightness = (value) => {
+  // Lấy ra đối tượng canvas và context hiện tại
   const canvas = canvasRef.current;
-  const tempCanvas = document.createElement('canvas');
-  const tempContext = tempCanvas.getContext('2d');
-
-  // Kiểm tra xem canvas và context có tồn tại không
   if (canvas && context) {
-    // Thiết lập kích thước của canvas tạm thời
-    tempCanvas.width = canvas.width;
-    tempCanvas.height = canvas.height;
+    // Lấy dữ liệu pixel của toàn bộ canvas
+    const data = context.getImageData(0, 0, canvas.width, canvas.height);
 
-    // Vẽ ảnh gốc lên canvas tạm thời
-    tempContext.drawImage(canvas, 0, 0);
-
-    // Lấy dữ liệu ảnh từ canvas tạm thời
-    const imageData = tempContext.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-
-    // Điều chỉnh độ sáng của dữ liệu ảnh
-    for (let i = 0; i < imageData.data.length; i += 4) {
+    // Lặp qua từng pixel (4 giá trị mỗi pixel: red, green, blue, alpha)
+    for (let i = 0; i < data.data.length; i += 4) {
+      // Lặp qua 3 giá trị đầu tiên (red, green, blue) để điều chỉnh độ sáng
       for (let k = 0; k < 3; k++) {
-        // Áp dụng điều chỉnh độ sáng cho mỗi kênh màu
-        imageData.data[i + k] += value;
+        // Áp dụng điều chỉnh với giá trị độ sáng mới
+        data.data[i + k] += value;
       }
     }
 
-    // Đặt dữ liệu ảnh đã được điều chỉnh trở lại canvas tạm thời
-    tempContext.putImageData(imageData, 0, 0);
-
-    // Xóa canvas gốc
-    context.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Vẽ ảnh đã được điều chỉnh lên canvas gốc
-    context.drawImage(tempCanvas, 0, 0);
+    // Cập nhật lại dữ liệu pixel trên canvas
+    context.putImageData(data, 0, 0);
   }
 };
+
 
 // Hàm xử lý sự kiện khi giá trị độ sáng thay đổi
 const handleBrightnessChange = (value) => {
