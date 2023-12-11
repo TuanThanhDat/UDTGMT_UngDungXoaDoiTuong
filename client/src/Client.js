@@ -2,7 +2,8 @@ import './Client.css';
 import React, { useState } from 'react';
 import {BrowserRouter, Routes, Route} from 'react-router-dom';
 import Landing from './pages/landing/landing';
-import WebcamToCanvas from './pages/landing/webcam';
+import Editor from './pages/edit/Editor';
+
 
 function Client() {
 
@@ -23,6 +24,15 @@ function Client() {
                             userToken={userToken}
                             setUserName={setUserName}
                             setUserToken={setUserToken}/>}
+                />
+                <Route path='/editor' 
+                    element={<Editor 
+                        isLogin={isLogin} 
+                        setIsLogin={setIsLogin}
+                        userName={userName}
+                        userToken={userToken}
+                        setUserName={setUserName}
+                        setUserToken={setUserToken}/>}
                 />
                 </Routes>
             </BrowserRouter>

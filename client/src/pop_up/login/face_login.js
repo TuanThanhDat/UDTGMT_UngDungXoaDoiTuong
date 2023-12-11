@@ -7,11 +7,6 @@ import FormInput from '../FormInput/FormInput';
 import * as faceapi from 'face-api.js';
 
 const FaceLogin = (props) => {
-    // const [selectedImage, setSelectedImage] = useState();
-    // const [isImagePicked, setIsImagePicked] = useState(false);
-    // const [isInputValid, setIsInputValid] = useState(false);
-    // const [isImageValid, setIsImageValid] = useState(false);
-
     const [values, setValues] = useState({
         name: '',
     })
@@ -26,19 +21,6 @@ const FaceLogin = (props) => {
         props.setType(type);
     }
 
-    // const startDrawing = () => {
-    //     const drawVideo = () => {
-    //         const video = videoRef.current;
-    //         const canvas = canvasRef.current;
-    //         if (video && canvas) {
-    //             const context = canvas.getContext('2d');
-    //             context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    //         }
-    //     animationFrameId = requestAnimationFrame(drawVideo);
-    //     };
-    //     drawVideo();
-    // };
-
     //   ===================================================================
     const HEIGHT = 444;
     const WIDTH = 474;
@@ -48,11 +30,74 @@ const FaceLogin = (props) => {
     let animationFrameId = null;
 
     const [isStreaming, setIsStreaming] = useState(false);
-    // const [detectedFaces, setDetectedFaces] = useState([]);
 
     const loadModel = async() => {
-        await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-        // await faceapi.nets.ssdMobilenetv1.loadFromUri('/models');
+        // await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+        await faceapi.loadSsdMobilenetv1Model('/models');
+        console.log("Load detect model");
+    };
+
+    const detectFaces = async () => {
+        const video = videoRef.current;
+        const canvas = canvasRef.current;
+        let detections = null;
+        let resizedDetections = null;
+        let detectLoop;
+        if (video && canvas) {
+            const ctx = canvas.getContext('2d');
+            const displaySize = { width: video.width, height: video.height };
+            faceapi.matchDimensions(canvas, displaySize);
+            detectLoop = setInterval(async () => {
+                // detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions());
+                // const inputSize = 512;
+                // const scoreThreshold = 0.5;
+                const OPTION =new faceapi.SsdMobilenetv1Options();
+                detections = await faceapi.detectAllFaces(video,OPTION);
+                resizedDetections = await faceapi.resizeResults(detections, displaySize);
+
+                // Draw video frame on canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                if (detections.length > 1) {
+                    // Draw bounding boxes with red color
+                    ctx.fillStyle = 'red';
+                    ctx.strokeStyle = 'red';
+                    ctx.lineWidth = 3;
+                    resizedDetections.forEach(detection => {
+                        const { x, y, width, height } = detection.box;
+                        ctx.strokeRect(x, y, width, height);
+                    });
+                }
+                else if (detections.length === 1) {
+                    // Draw bounding box with green color
+                    ctx.fillStyle = 'red';
+                    ctx.strokeStyle = 'green';
+                    ctx.lineWidth = 3;
+                    resizedDetections.forEach(detection => {
+                        const { x, y, width, height } = detection.box;
+                        ctx.strokeRect(x, y, width, height);
+                    });
+                    clearInterval(detectLoop);
+
+                    // sending frame
+                    sendingFrame(canvas.toDataURL('image/jpeg'));
+                }
+            }, 200);
+        }
+    };
+
+    const handleDetect = () => {
+        const timeout = new Promise((resolve, reject) => {
+            setTimeout(() => {
+                reject("Not found user face!!!");
+            }, 6000);
+        });
+        Promise.race([detectFaces(), timeout])
+        .catch ((error) => {
+            alert(error);
+            setIsStreaming(false);
+        });
     };
 
     const startVideo = async () => {
@@ -60,9 +105,10 @@ const FaceLogin = (props) => {
             navigator.mediaDevices.getUserMedia({ video: true })
             .then((stream) => {
                 if (videoRef.current) {
+                    console.log("Start video");
                     videoRef.current.srcObject = stream;
-                    // videoRef.current.play();
-                    detectFaces();
+                    // detectFaces();
+                    handleDetect();
                 }
             })
             .catch((err) => {
@@ -71,47 +117,36 @@ const FaceLogin = (props) => {
         }
     };
 
-    const detectFaces = async () => {
-        const video = videoRef.current;
-        const canvas = canvasRef.current;
-    
-        if (video && canvas) {
-            const displaySize = { width: video.width, height: video.height };
-            faceapi.matchDimensions(canvas, displaySize);
-    
-            setInterval(async () => {
-                const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions());
-                
-                const resizedDetections = faceapi.resizeResults(detections, displaySize);
-        
-                const ctx = canvas.getContext('2d');
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // Draw video frame on canvas
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                if (detections.length===1) {
-                    const data = new FormData();
-                    data.append("image", canvas.toDataURL('image/jpeg'));
-                    data.append("user_name", values["name"]);
-                    handleLogin(data);
-                }
-
-                // Draw bounding boxes around detected faces
-                ctx.fillStyle = 'red';
-                ctx.strokeStyle = 'green';
-                ctx.lineWidth = 3;
-                resizedDetections.forEach(detection => {
-                    const { x, y, width, height } = detection.box;
-                    ctx.strokeRect(x, y, width, height);
-                });
-            }, 50); // Face detection interval (adjust as needed)
+    const handleLogin = async (data) => {
+        try {
+            const resp = await httpClient.post("//localhost:5000/api/v1/face-login", data);
+            console.log(resp.data);
+            props.setIsLogin(true);
+            props.setUserName(resp.data.user_name);
+            props.setUserToken(resp.data.user_token);
+            stopVideo();
+            props.handleClose();
+            navigate("/");
         }
+        catch (error) {
+            console.log(error.response);
+            alert(error.response.data.message);
+            setIsStreaming(false);
+        }
+    }
+
+    const sendingFrame = (image) => {
+        console.log("Sending request");
+        const data = new FormData();
+        data.append("image", image);
+        data.append("user_name", values["name"]);
+        handleLogin(data);
     };
 
     const stopVideo = () => {
         cancelAnimationFrame(animationFrameId);
         if (videoRef.current && videoRef.current.srcObject) {
+            console.log("Stop video");
             const stream = videoRef.current.srcObject;
             const tracks = stream.getTracks();
             tracks.forEach((track) => {
@@ -128,26 +163,20 @@ const FaceLogin = (props) => {
         }
     };
 
-    const handleLogin = async (data) => {
-        try {
-            const resp = await httpClient.post("//localhost:5000/api/v1/face-login", data);
-            console.log(resp.data);
-            props.setIsLogin(true);
-            props.setUserName(resp.data.user_name);
-            props.setUserToken(resp.data.user_token);
+    const handleClose = (e) => {
+        e.preventDefault();
+        if (isStreaming) {
             stopVideo();
-            props.handleClose();
-            navigate("/");
         }
-        catch (error) {
-            // console.log(error.data.message);
-        }
+        props.handleClose();
     }
 
     useEffect(() => {
         if (isStreaming) {
-            loadModel();
-            startVideo();
+            loadModel()
+            .then(()=>{
+                startVideo();
+            })
         }
         else {
             stopVideo();
@@ -169,17 +198,24 @@ const FaceLogin = (props) => {
     return (
         <div className="f-login-box">
             <div className='box'>
-                <span className="close-icon" onClick={props.handleClose}>x</span>
+                <span className="close-icon" onClick={handleClose}>x</span>
                 <div className='form-box'>
                     <div className='form-box-container'>
                         <div className='title'>
                             Please Login with face
                         </div>
-                        <span className="caption" onClick={()=>{changePopUp("SignUp")}}>
+                        <span 
+                            className="caption" 
+                            disabled={isStreaming}
+                            onClick={()=>{changePopUp("SignUp")}}>
                             You don't have an account? Create an account 
                         </span>
-                        <button className="other-btn" onClick={()=>{changePopUp("PasswordLogin")}}>
-                            Login with password</button>
+                        <button 
+                            className="other-btn" 
+                            disabled={isStreaming}
+                            onClick={()=>{changePopUp("PasswordLogin")}}>
+                            Login with password
+                        </button>
                         <div>or</div>
                         <form className="form">
                             <FormInput 
@@ -191,11 +227,9 @@ const FaceLogin = (props) => {
                                 pattern="^[A-Za-z0-9]{5,30}$"
                                 required={true}
                             />
-                            {/* <input className='file-picker' type='file' name='file' onChange={(e)=>{changeHandler(e)}}/>  */}
                             {!isStreaming ? (
                                 <button 
                                 className="login-btn"
-                                // onClick={runLogin}
                                 onClick = {handleStartStream}
                                 disabled={!/^[A-Za-z0-9]{5,30}$/.test(values["name"])}>
                                 Start

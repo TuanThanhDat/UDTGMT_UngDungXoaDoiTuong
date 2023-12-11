@@ -18,19 +18,23 @@ user_controller = User_Controller()
 @api_v1.route('/face-sign-up', methods=["POST"])
 def face_sign_up_api():
     try:
+        print("Start create a sign up with face!!!")
         # Get the base64-encoded image string
         base64_image = request.form["image"]
         name = request.form["user_name"]
-        print("OK")
+        print("get request OK")
 
         image = base64_image_to_numpy(base64_image)
-        print("OK")
+        print("convert image OK")
     
         n_faces, bboxes = detect_face(image)
-        print("OK")
-        print("nfaces: ",n_faces)
+        print("detect face OK")
+        
         if n_faces==1:
-            isSuccessed = user_controller.face_sign_up(name,bbox_to_face(image,bboxes[0]),image)
+            isSuccessed = user_controller.face_sign_up(
+                name,
+                image)
+            print("sign up face OK")
             if isSuccessed:
                 response = {
                     "message": "Update successfully!!!"
@@ -53,79 +57,62 @@ def face_sign_up_api():
         print(response["message"])
         return response, 500
 
-
 @api_v1.route('/face-login', methods=["POST"])
-def face_login_api():
-    # if 'image' not in request.files:
-    #     return 'No image uploaded', 400
-    base64_image = request.form["image"]
+def face_login():
     name = request.form['user_name']
-    image = base64_image_to_numpy(base64_image)
-    
-    n_faces, bboxes = detect_face(image)
-    print(n_faces)
-    if n_faces==1:
-        isSuccessed, user_name,user_token = user_controller.face_login(name,bbox_to_face(image,bboxes[0]))
-        print(isSuccessed)
-        if isSuccessed:
-            response = {
-                "user_name": user_name,
-                "user_token": user_token
-            }
-            return jsonify(response), 200
-        else:
-            response = {
-                "user_name": user_name,
-                "user_token": user_token
-            }
-            return jsonify(response), 401
-    return jsonify({
+    base64_image = request.form["image"]
+    if base64_image is None:
+        return jsonify({
             "user_name": "",
             "user_token": ""
             }), 401
-
-
-@api_v1.route('/face-detection', methods=["POST"])
-def face_detection():
-    # if 'image' not in request.files:
-    #     return 'No image uploaded', 400
-    try :
-        # Get the base64-encoded image string
-        base64_image = request.form["image"]
         
-        # Decode into bytes
-        bytes_image = base64.b64decode(base64_image.split(',')[1])
-        
-        # Convert bytes into a PIL Image object
-        pil_image = Image.open(io.BytesIO(bytes_image))
-        # image = Image.open(bytes_image)
-        
-        if pil_image.format not in ('JPEG', 'PNG', 'BMP'):
-            return jsonify({'message': 'Invalid image format'}),400
-        
-        # convert PIL Image object into numpy array
-        image = np.array(pil_image)
-        
-        # Detect faces
-        n_faces, bboxes = detect_face(image)
-        if (n_faces > 0):
-            bboxes = jsonify_bboxes(bboxes)
-        response = {
-            "message": "Detect face successfully!!!",
-            "n_faces": n_faces,
-            "bboxes": bboxes
-        }
-        return jsonify(response),200
+    image = base64_image_to_numpy(base64_image)
+    n_faces, bboxes = detect_face(image)
     
-    except Exception as e:
+    if n_faces == 0:
+        return jsonify({
+                "message": "Not found face!!!",
+                "user_name": "",
+                "user_token": ""
+            }), 401
+        
+    if n_faces > 1:
+        return jsonify({
+            "message": "Too many face!!!",
+            "user_name": "",
+            "user_token": ""
+        }), 401
+        
+    isSuccessed, user_name,user_token = user_controller.face_login(
+        name,
+        image
+    )
+    if isSuccessed:
         response = {
-            "message": f'Error processing image: {str(e)}'
+            "message": "Login successfully!!!",
+            "user_name": user_name,
+            "user_token": user_token
         }
-        print(response["message"])
-        return response, 500
-    
-   
+        print(response)
+        return jsonify(response), 200
 
+    if (user_name == ""):
+        response = {
+            "message": "Not found user name",
+            "user_name": user_name,
+            "user_token": user_token
+        }
+        print(response)
+        return jsonify(response), 401
+    else:
+        response = {
+            "message": "Not matched face!!!",
+            "user_name": user_name,
+            "user_token": user_token
+        }
+        print(response)
+        return jsonify(response), 401
 
 @api_v1.route('/signup', methods=["POST"])
 def signUp():

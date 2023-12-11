@@ -25,12 +25,11 @@ def create_salt():
     return uuid4().hex
 
 class User_Controller:
-    
-    def face_sign_up(self, user_name, face_image, image):
+    def face_sign_up(self, user_name, image):
         user = self.__get_user_by_name(user_name)
         if user is not None:
             user.image = encode_image(image)
-            embed = get_embed(face_image) # (2622,)
+            embed = get_embed(image) # (2622,)
             user.embed = json.dumps(embed.tolist())
             db.session.commit()
             return True

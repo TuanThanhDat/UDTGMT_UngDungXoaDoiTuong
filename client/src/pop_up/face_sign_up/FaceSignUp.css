@@ -48,8 +48,12 @@
     font-size: 22px;
 }
 
-.f-sign-up-box .box .image-box {
+.f-sign-up-box .box .image-box{
     /* background-color: green; */
+    height: 446px;
+    padding: 0px;
+    margin: 0px;
+    border: solid 2px;
 }
 
 /* .f-sign-up-box .image-box .video-login {

@@ -1,0 +1,299 @@
+
+
+/* ============== USER ==================== */
+.user-place {
+    display: block;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+.user-place .user {
+    display: flex;
+    justify-content: right;
+    width: 100%;
+}
+
+.user-place #btn-user {
+    border-radius: 50%;
+    height: 45px;
+    width: 45px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-place .dropdown-place {
+    display: flex;
+    height: 100px;
+    padding-top: 15px;
+    display: none;
+}
+
+.user-place .dropdown li {
+    display: flex;
+    font-size: 14px;
+    height: 30px;
+    width: 90%;
+    align-items: center;
+    justify-content: left;
+    border-radius: 5px;
+    color: var(--text-color);
+    font-weight: 400;
+}
+
+.user-place ul.dropdown li:hover {
+    background: var(--primary-color);
+    color: var(--hover-text-color);
+    transition: var(--tran-03);
+}
+
+.user-place .dropdown-place .dropdown {
+    width: 200px;
+    height: 100%;
+    background: white;
+    border-radius: 5px;
+    padding-top: 10px;
+}
+
+
+/* Above Nav =================================================*/
+.above-nav {
+    position: fixed;
+    background: var(--sidebar-color);
+    height: 60px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.above-nav .btn-save {
+    width: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: right;
+    padding-right: 20px;
+    margin-left: 30px;
+    margin-right: 30px;
+    justify-content: center;
+}
+
+.above-nav .btn-open-image {
+    width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: right;
+    padding-right: 20px;
+    margin-left: 30px;
+    justify-content: center;
+}
+
+.above-nav .btn-user {
+    height: 50px;
+    width: 200px;
+    display: flex;
+    align-items: center;
+    /* justify-content: right; */
+    padding-right: 20px;
+    /* background: yellow; */
+}
+
+.above-nav .home {
+    padding-left: 10px;
+    display: flex;
+    /* background-color: red; */
+    width: calc(100% - 200px);
+}
+
+.above-nav li {
+    list-style: none;
+    height: 40px;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    user-select: none;
+}
+
+.above-nav li:hover {
+    background: var(--hover-color);
+    cursor: pointer;
+    transition: var(--tran-03);
+}
+
+.above-nav li:hover .icon,
+.above-nav li:hover .text{
+    color: var(--hover-text-color);
+    transition: var(--tran-03);
+}
+
+.above-nav .text {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.above-nav .icon {
+    color: var(--text-color);
+    margin-right: 10px;
+}
+
+.above-nav .btn-download{
+    /* background: var(--primary-color); */
+    width: 200px;
+    display: flex;
+}
+
+/* Tool Bar =================================================*/
+/* Google font Import - Poppins */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+*{
+    font-family: 'Poppins', sans-serif;
+    margin: 0px;
+    padding: 0px;
+    /* box-sizing: border-box; */
+}
+
+:root{
+    /* ========= sizes ========*/
+    --sidebar-width: 100px;
+    --extent-width: 300px;
+
+    /* ========= Colors ========*/
+    --body-color: #e0e0e1;
+    --sidebar-color: #1e1f22;
+    --primary-color: #2c7dfa;
+    --toggle-color: #3C457D;
+    --text-color: #777777;
+    --hover-text-color: white;
+    --hover-color: #3c3d3f;
+
+    /* ========= Transition ========*/
+    --tran-03: all 0.3s ease;
+    --tran-04: all 0.4s ease;
+}
+
+.tool-bar {
+    height: 100%;
+    width: auto;
+    margin: 0px;
+    padding: 0px;
+    display: flex;
+}
+
+.tool-bar .menu {
+    background: var(--sidebar-color);
+    width: var(--sidebar-width);
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+
+.tool-bar #extent-menu.hide{
+    opacity: 0;
+    height: 0;
+    transition: var(--tran-03);
+}
+
+.tool-bar #extent-menu{
+    height: 100%;
+    width: var(--extent-width);
+    margin: 0px;
+    padding: 0px;
+    background: var(--hover-color);
+    transition: var(--tran-03);
+}
+
+.tool-bar .text {
+    font-size: 12px;
+    color: inherit;
+}
+
+.tool-bar li {
+    height: 50px;
+    margin-top: 10px;
+    list-style: none;
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    padding: 10px;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    color: var(--text-color);
+}
+
+.tool-bar li:hover {
+    background: var(--hover-color);
+    cursor: pointer;
+    transition: var(--tran-03);
+    color: var(--hover-text-color);
+}
+
+.tool-bar li:hover .icon,
+.tool-bar li:hover .text{
+    color: var(--hover-text-color);
+    transition: var(--tran-03);
+}
+
+.tool-bar .icon {
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 25px;
+    color: inherit;
+}
+
+
+/* Picture =================================================*/
+.picture {
+    background: var(--body-color) ;
+    height:100%;
+    width: 100%;
+}
+
+
+/* Editor =================================================*/
+.editor {
+    width: 100%;
+    height: 100vh;
+    background: var(--body-color);
+    padding: 0px;
+    margin: 0px;
+    white-space: 0px;
+}
+
+.editor .nav {
+    height: 60px;
+    width: 100%;
+}
+
+.editor .edit-place {
+    height: calc(100vh - 60px);
+    width: 100%;
+    padding: 0px;
+    margin: 0px;
+    display: flex;
+    gap: 0;
+}
+
+/* .editor #tool-place {
+    height: calc(100vh - 60px);
+    width: calc(var(--sidebar-width) + var(--extent-width) - 20px);
+    padding: 0px;
+    margin: 0px;
+    background: green;
+}
+
+.editor #picture-place {
+    height: calc(100vh - 60px);
+    width: calc(100% - var(--sidebar-width) - var(--extent-width));
+    padding: 0px;
+    margin: 0px;
+    background: red;
+} */

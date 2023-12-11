@@ -8,7 +8,8 @@ def create_app(config=ApplicationConfig):
     print("app_init_")
     app = Flask(__name__)
     app.config.from_object(config)
-    CORS(app, supports_credentials=True)
+    CORS(app, 
+         supports_credentials=True)
 
     db.init_app(app)
     with app.app_context():
@@ -17,4 +18,4 @@ def create_app(config=ApplicationConfig):
     from app.api.v1.routes import api_v1
     app.register_blueprint(api_v1, url_prefix='/api/v1')
     
-    return app
+    return app 
