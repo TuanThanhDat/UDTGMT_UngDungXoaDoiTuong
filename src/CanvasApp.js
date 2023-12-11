@@ -45,26 +45,26 @@ const CanvasApp = () => {
   const [isNewImageUploaded, setIsNewImageUploaded] = useState(false);
 
 
-
-
 // Xử lý sự kiện khi người dùng nhấn chuột xuống trên canvas
-const handleMouseDown = (event) => {
+const handleMouseDown = () => {
+  // Bật trạng thái đang kéo thả
+  setIsDragging(true);
+};
+
+
+
+// Xử lý sự kiện khi người dùng nhấc chuột lên khỏi canvas
+const handleMouseUp = (event) => {
+  // Tắt trạng thái đang kéo thả
+  setIsDragging(false);
   const canvas = canvasRef.current;
   const rect = canvas.getBoundingClientRect();
   const mouseX = event.clientX - rect.left;
   const mouseY = event.clientY - rect.top;
 
-  // Lưu vị trí bắt đầu kéo thả
   setDragStart({ x: mouseX, y: mouseY });
-  // Bật trạng thái đang kéo thả
-  setIsDragging(true);
 };
 
-// Xử lý sự kiện khi người dùng nhấc chuột lên khỏi canvas
-const handleMouseUp = () => {
-  // Tắt trạng thái đang kéo thả
-  setIsDragging(false);
-};
 
 // Xử lý sự kiện khi người dùng di chuyển chuột trên canvas
 const handleMouseMove = (event) => {
@@ -80,13 +80,15 @@ const handleMouseMove = (event) => {
     // Xóa nội dung trước đó trên canvas
     context.clearRect(0, 0, canvas.width, canvas.height);
 
+    //if (rotationAngle!==0){
+      //setRotationAngle(0)
+    //}
+
     // Vẽ ảnh đã xoay và điều chỉnh độ sáng tại vị trí mới
     rotateAndDrawImage1(image, rotationAngle, zoomLevel, { x: mouseX, y: mouseY });
     adjustBrightness(brightness);
   }
 };
-
-
 
 
 //Thay đổi độ sáng của ảnh
@@ -127,6 +129,7 @@ const adjustBrightness = (value) => {
   }
 };
 
+
 // Hàm xử lý sự kiện khi giá trị độ sáng thay đổi
 const handleBrightnessChange = (value) => {
   // Cập nhật state độ sáng
@@ -139,12 +142,11 @@ const handleBrightnessChange = (value) => {
 
     // Gọi hàm xoay và vẽ ảnh với góc và độ zoom hiện tại
     rotateAndDrawImage1(image, rotationAngle, zoomLevel, { x: dragStart.x, y: dragStart.y });
-
+    
     // Áp dụng điều chỉnh độ sáng cho ảnh
     adjustBrightness(value);
   }
 };
-
 
 
 // Hàm để resize ảnh
@@ -182,6 +184,7 @@ const resizeImage = (img, canvasWidth, canvasHeight) => {
   return resizedImg;
 };
 
+
 // Hàm để xoay và vẽ ảnh
 const rotateAndDrawImage = (img, angle, zoom) => {
   const { width, height } = img;
@@ -205,6 +208,7 @@ const rotateAndDrawImage = (img, angle, zoom) => {
   adjustBrightness(brightness);
 
 };
+
 
 // Hàm để xoay và vẽ ảnh với tùy chọn vị trí mới
 const rotateAndDrawImage1 = (img, angle, zoom, position) => {
@@ -231,7 +235,9 @@ const rotateAndDrawImage1 = (img, angle, zoom, position) => {
   // Khôi phục trạng thái của context về trạng thái trước đó
   context.restore();
 
+
 };
+
 
 // Hàm để xoay và vẽ ảnh với tùy chọn vị trí mới mà không biến đổi độ sáng của ảnh
 const rotateAndDrawImage2 = (img, angle, zoom) => {
@@ -253,6 +259,7 @@ const rotateAndDrawImage2 = (img, angle, zoom) => {
   context.restore();
 };
 
+
 // Hàm để xoay ảnh theo góc mới và vẽ lại
 const rotateImage = (event) => {
   event.stopPropagation();
@@ -272,6 +279,7 @@ const rotateImage = (event) => {
     rotateAndDrawImage(image, newRotationAngle, zoomLevel);
   }
 };
+
 
 // Hàm để xử lý sự kiện zoom trên canvas
 const handleCanvasZoom = (event) => {
@@ -313,6 +321,7 @@ const handleCanvasZoom = (event) => {
   event.preventDefault();
 };
 
+
 // Hàm xử lý sự kiện đối xứng ảnh
 const flipImage = (event) => {
   // Ngăn chặn sự kiện mặc định của trình duyệt
@@ -352,18 +361,25 @@ const flipImage = (event) => {
     context.putImageData(flippedData, 0, 0);
 
     // Tính toán góc xoay mới sau khi đối xứng
-    const newRotationAngle = rotationAngle + 180;
-    setRotationAngle(newRotationAngle);
+    //const newRotationAngle = rotationAngle + 180;
+    //setRotationAngle(newRotationAngle);
 
+        // Tính toán và cập nhật vị trí mới sau khi đối xứng
+        const mouseX = dragStart.x;
+        const mouseY = dragStart.y;
     
+        // Cập nhật vị trí mới sau khi đối xứng
+        setDragStart({ x: canvasRef.current.width - mouseX, y: mouseY });
 
     // Kết thúc quá trình đối xứng
     setIsFlipping(false);
 
     // Kết thúc tạm dừng click
     setIsClickDisabled(false);
+
   }
 };
+
 
 // Hàm xử lý khi nút tải ảnh được nhấn
 const handleButtonClick = () => {
@@ -377,6 +393,7 @@ const handleButtonClick = () => {
   }
 };
 
+
 // Hàm xử lý khi chuột di vào nút xoay ảnh
 const handleRotateButtonEnter = () => {
   // Kiểm tra và thay đổi màu nền của nút xoay khi chuột di vào
@@ -385,6 +402,7 @@ const handleRotateButtonEnter = () => {
   }
 };
 
+
 // Hàm xử lý khi chuột rời khỏi nút xoay ảnh
 const handleRotateButtonLeave = () => {
   // Kiểm tra và thay đổi màu nền của nút xoay khi chuột rời khỏi
@@ -392,6 +410,7 @@ const handleRotateButtonLeave = () => {
     rotateButtonRef.current.style.backgroundColor = 'green';
   }
 };
+
 
 // Hàm xử lý khi chuột di vào nút đối xứng ảnh
 const handleFlipButtonEnter = () => {
@@ -403,6 +422,7 @@ const handleFlipButtonEnter = () => {
   setHoverFlipButton(true);
 };
 
+
 // Hàm xử lý khi chuột rời khỏi nút đối xứng ảnh
 const handleFlipButtonLeave = () => {
   // Kiểm tra và thay đổi màu nền của nút đối xứng khi chuột rời khỏi
@@ -412,6 +432,7 @@ const handleFlipButtonLeave = () => {
   // Thiết lập trạng thái hover cho nút đối xứng
   setHoverFlipButton(false);
 };
+
 
 // Callback được gọi khi ảnh được thả vào khu vực drop
 const onDrop = (acceptedFiles) => {
@@ -466,11 +487,13 @@ const onDrop = (acceptedFiles) => {
   }
 };
 
+
 // Sử dụng hook useDropzone để xử lý thả và tải ảnh
 const { getRootProps, getInputProps, isDragActive } = useDropzone({
   onDrop,            // Callback được gọi khi ảnh được thả vào khu vực drop
   noClick: isFlipping, // Không cho phép click khi đang trong quá trình đối xứng ảnh
 }); 
+
 
 useEffect(() => {
   // Lấy canvas và bối cảnh vẽ 2D của nó
@@ -512,6 +535,7 @@ useEffect(() => {
   };
 }, [context, zoomLevel, rotationAngle, image]);
 
+
 useEffect(() => {
   const canvas = canvasRef.current; // Lấy tham chiếu đến canvas từ trạng thái refs
 
@@ -528,6 +552,7 @@ useEffect(() => {
   };
 }, [isDragging, dragStart, imagePosition]);
 
+
 // Sử dụng useEffect để kiểm soát trạng thái của việc bật/tắt chức năng click khi đang thực hiện hoạt động lật ảnh
 useEffect(() => {
   if (!isFlipping) {
@@ -535,10 +560,12 @@ useEffect(() => {
   }
 }, [isFlipping, imageSize]); // Theo dõi biến isFlipping và imageSize, nếu có thay đổi, thực hiện lại hiệu ứng
 
+
 // Sử dụng useEffect để đảm bảo việc reset trạng thái click sau khi component được render
 useEffect(() => {
   setIsClickDisabled(false);
 }, []); // Mảng dependency rỗng đồng nghĩa với việc useEffect chỉ chạy sau lần render đầu tiên
+
 
 // Sử dụng useEffect để điều chỉnh độ sáng khi ảnh mới được tải lên
 useEffect(() => {
@@ -547,14 +574,6 @@ useEffect(() => {
     setIsNewImageUploaded(false);
   }
 }, [isNewImageUploaded]); // Theo dõi biến isNewImageUploaded, nếu có thay đổi, thực hiện lại hiệu ứng
-
-
-
-
-
-
-
-
 
 
   return (
