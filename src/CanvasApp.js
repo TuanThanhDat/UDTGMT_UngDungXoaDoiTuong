@@ -155,7 +155,6 @@ const handleBrightnessChange = (value) => {
 };
 
 
-
 // Hàm để lấy tọa độ (x, y) của tâm ảnh trên canvas
 const getImageCenter = () => {
   const canvas = canvasRef.current;
@@ -681,7 +680,6 @@ useEffect(() => {
     </div>
   );
 };
-
 
 const uploadButtonStyle = {
   backgroundColor: 'green',
