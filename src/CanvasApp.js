@@ -52,7 +52,6 @@ const handleMouseDown = () => {
 };
 
 
-
 // Xử lý sự kiện khi người dùng nhấc chuột lên khỏi canvas
 const handleMouseUp = (event) => {
   // Tắt trạng thái đang kéo thả
@@ -89,7 +88,6 @@ const handleMouseMove = (event) => {
     adjustBrightness(brightness);
   }
 };
-
 
 //Thay đổi độ sáng của ảnh
 // Hàm điều chỉnh độ sáng của ảnh trên canvas
@@ -132,6 +130,14 @@ const adjustBrightness = (value) => {
 
 // Hàm xử lý sự kiện khi giá trị độ sáng thay đổi
 const handleBrightnessChange = (value) => {
+  // Lưu trạng thái ảnh trước khi xóa canvas
+  const { x: centerX, y: centerY } = getImageCenter();
+  const imageState = {
+    rotationAngle,
+    zoomLevel,
+    center: { x: centerX, y: centerY }
+  };
+
   // Cập nhật state độ sáng
   setBrightness(value);
 
@@ -140,12 +146,47 @@ const handleBrightnessChange = (value) => {
     // Xóa nội dung hiện tại trên canvas
     context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 
-    // Gọi hàm xoay và vẽ ảnh với góc và độ zoom hiện tại
-    rotateAndDrawImage1(image, rotationAngle, zoomLevel, { x: dragStart.x, y: dragStart.y });
-    
+    // Vẽ lại ảnh sau khi xóa canvas
+    rotateAndDrawImage1(image, imageState.rotationAngle, imageState.zoomLevel, imageState.center);
+
     // Áp dụng điều chỉnh độ sáng cho ảnh
     adjustBrightness(value);
   }
+};
+
+
+
+// Hàm để lấy tọa độ (x, y) của tâm ảnh trên canvas
+const getImageCenter = () => {
+  const canvas = canvasRef.current;
+  const context = canvas.getContext('2d');
+
+  // Lấy dữ liệu pixel từ canvas
+  const imageData = context.getImageData(0, 0, canvas.width, canvas.height).data;
+
+  let totalX = 0;
+  let totalY = 0;
+  let totalPixels = 0;
+
+  // Lặp qua từng pixel và tính tổng tọa độ x, y
+  for (let y = 0; y < canvas.height; y++) {
+    for (let x = 0; x < canvas.width; x++) {
+      const index = (y * canvas.width + x) * 4; // Mỗi pixel có 4 giá trị (RGBA)
+
+      // Kiểm tra alpha (độ trong suốt), nếu alpha > 0, đó là một phần của ảnh
+      if (imageData[index + 3] > 0) {
+        totalX += x;
+        totalY += y;
+        totalPixels++;
+      }
+    }
+  }
+
+  // Tính toán tọa độ trung bình của tất cả các pixel có alpha > 0
+  const centerX = totalX / totalPixels;
+  const centerY = totalY / totalPixels;
+
+  return { x: centerX, y: centerY };
 };
 
 
@@ -192,6 +233,7 @@ const rotateAndDrawImage = (img, angle, zoom) => {
   // Lưu lại trạng thái của context
   context.save();
 
+  
   // Di chuyển tâm của context đến giữa canvas
   context.translate(canvasRef.current.width / 2, canvasRef.current.height / 2);
 
