@@ -25,7 +25,6 @@
 }
 
 .user-place .dropdown-place {
-    display: flex;
     height: 100px;
     padding-top: 15px;
     display: none;
@@ -148,6 +147,12 @@
     display: flex;
 }
 
+.above-nav #btn-user {
+    background-image: url('../../../public/user_profile.png');
+    background-size: cover;
+    background-position: center;
+}
+
 /* Tool Bar =================================================*/
 /* Google font Import - Poppins */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
@@ -162,12 +167,13 @@
 :root{
     /* ========= sizes ========*/
     --sidebar-width: 100px;
-    --extent-width: 300px;
+    --extent-width: 250px;
 
     /* ========= Colors ========*/
     --body-color: #e0e0e1;
     --sidebar-color: #1e1f22;
     --primary-color: #2c7dfa;
+    --hover-primary-color: #e9f2fc;
     --toggle-color: #3C457D;
     --text-color: #777777;
     --hover-text-color: white;
@@ -249,14 +255,143 @@
     color: inherit;
 }
 
+/* .tool-bar #image-tools-place {
+    height: 100%;
+    width: 1005;
+} */
+/* =============== */
+#image-tools-place {
+    height: 100%;
+    overflow-y: auto;
+    width: 100%;
+    /* background: red; */
+    display: flex;
+    flex-direction: column;
+}
+
+.tools-display {
+    /* background: blue; */
+    margin-top: 30px;
+    margin-left: 10px;
+    margin-right: 10px;
+    padding-top: 10px;
+    border-top: 2px solid var(--hover-text-color);
+    color: var(--hover-text-color);
+    font-size: 14px;
+    font-weight: normal;
+    /* background: red; */
+}
+
+#image-tools-place ul {
+    /* background: red; */
+    padding: 0;
+    display: grid;
+    grid-template-rows: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr);
+}
+
+#image-tools-place li {
+    /* background: blue; */
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 10px;
+    color: var(--hover-text-color);
+}
+
+#image-tools-place li input {
+    width: 60px;
+    padding-left: 5px;
+    font-size: 16px;
+}
+
+.tools-display .bar-container {
+    /* background: red; */
+    padding: 0;
+    padding-left: 15px;
+    padding-right: 15px;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.tools-display .bar-container #bar {
+    width: 100%;
+}
+
+.icons-place {
+    height: 40px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 25px;
+    gap: 20px;
+}
+
+.icons-place .tools-icon {
+    padding: 10px 20px 10px 20px;
+    border-radius: 5px;
+}
+
+.icons-place .tools-icon:hover {
+    background: var(--sidebar-color);
+    transition: var(--tran-03);
+}
 
 /* Picture =================================================*/
 .picture {
     background: var(--body-color) ;
+    /* background: red; */
     height:100%;
     width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
+.picture #uploading {
+    height: 300px;
+    width: 500px;
+    background: white;
+    border: 2px dashed #BBB;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    gap: 20px;
+    user-select: none;
+}
+
+.picture #uploading:hover {
+    border: 2px dashed var(--primary-color);
+    background: var(--hover-primary-color);
+    transition: var(--tran-03);
+}
+
+.picture #picture-place {
+    height: 100%;
+    width: 100%;
+    display: flex;
+}
+
+.picture #picture-place #ref-picture {
+    height: 100%;
+    width: 100%;
+    /* background: red; */
+}
+
+.picture #btn-uploading {
+    font-size: 16px;
+    width: 150px;
+    height: 35px;
+    background: var(--primary-color);
+    color: var(--hover-text-color);
+    border: 0px solid;
+    border-radius: 5px;
+}
 
 /* Editor =================================================*/
 .editor {
