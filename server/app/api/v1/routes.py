@@ -14,7 +14,6 @@ from app.controllers.face_processing import *
 
 user_controller = User_Controller()
 
-
 @api_v1.route('/face-sign-up', methods=["POST"])
 def face_sign_up_api():
     try:
@@ -22,19 +21,15 @@ def face_sign_up_api():
         # Get the base64-encoded image string
         base64_image = request.form["image"]
         name = request.form["user_name"]
-        print("get request OK")
 
         image = base64_image_to_numpy(base64_image)
-        print("convert image OK")
     
         n_faces, bboxes = detect_face(image)
-        print("detect face OK")
         
         if n_faces==1:
             isSuccessed = user_controller.face_sign_up(
                 name,
                 image)
-            print("sign up face OK")
             if isSuccessed:
                 response = {
                     "message": "Update successfully!!!"
@@ -84,7 +79,7 @@ def face_login():
             "user_token": ""
         }), 401
         
-    isSuccessed, user_name,user_token = user_controller.face_login(
+    isSuccessed, user_name, user_token = user_controller.face_login(
         name,
         image
     )
@@ -94,7 +89,6 @@ def face_login():
             "user_name": user_name,
             "user_token": user_token
         }
-        print(response)
         return jsonify(response), 200
 
     if (user_name == ""):
@@ -103,7 +97,6 @@ def face_login():
             "user_name": user_name,
             "user_token": user_token
         }
-        print(response)
         return jsonify(response), 401
     else:
         response = {
@@ -111,7 +104,6 @@ def face_login():
             "user_name": user_name,
             "user_token": user_token
         }
-        print(response)
         return jsonify(response), 401
 
 @api_v1.route('/signup', methods=["POST"])

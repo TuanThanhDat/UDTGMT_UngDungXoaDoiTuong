@@ -94,14 +94,13 @@ def detect_face(image):
     #                                       minSize=(30, 30))
     # detector = dlib.get_frontal_face_detector()
     # faces = detector(gray_image)
-    min_w = 60
-    min_h = 70
-    score_threshold = 0.7
+    min_w = 50
+    min_h = 60
+    score_threshold = 0.6
     
     detector = RetinaFace()
     copy_image = image
     result = detector(copy_image)
-    print("detect OK")
     bboxes = []
     for face in result:
         x1, y1, x2, y2 = list(face[0])
@@ -119,15 +118,3 @@ def detect_face(image):
             continue
         bboxes.append([x1,y1,w,h])
     return len(bboxes), bboxes
-    # n_faces = len(faces)
-    # sizes = []
-    # bboxes = []
-    # for (x,y,w,h) in faces:
-    #     # x, y, w, h = face.left(), face.top(), face.width(), face.height()
-    #     bboxes.append([x,y,w,h])
-    #     sizes.append(w*h)
-    # if (n_faces > 0):
-    #     combined = list(zip(sizes, bboxes))
-    #     sorted_combined = sorted(combined, key=lambda x: x[0], reverse=True)
-    #     _, bboxes = zip(*sorted_combined)
-    # return n_faces, bboxes
