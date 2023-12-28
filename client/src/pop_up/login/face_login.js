@@ -126,7 +126,7 @@ const FaceLogin = (props) => {
             props.setUserToken(resp.data.user_token);
             stopVideo();
             props.handleClose();
-            navigate("/");
+            navigate("/editor");
         }
         catch (error) {
             console.log(error.response);
