@@ -25,6 +25,15 @@ def create_salt():
     return uuid4().hex
 
 class User_Controller:
+    
+    def is_login(self, user_name, user_token):
+        user = self.__get_user_by_name(user_name)
+        if user is not None:
+            if user.auth_token == user_token:
+                return True
+        return False
+        
+    
     def face_sign_up(self, user_name, image):
         user = self.__get_user_by_name(user_name)
         if user is not None:
@@ -47,8 +56,7 @@ class User_Controller:
                     return True, user.name, auth_token
             return False,user.name,''
         return False,'',''
-            
-        
+
     def check_user_name_exist(self,user_name):
         return User.query.filter_by(name=user_name).first() is not None
 

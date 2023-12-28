@@ -8,6 +8,9 @@ import { RiDownloadLine } from "react-icons/ri";
 import { IoMdAdd } from "react-icons/io";
 import { CgEditFlipH, CgEditFlipV } from "react-icons/cg";
 import { AiOutlineRotateLeft, AiOutlineRotateRight } from "react-icons/ai";
+import { IoSearchSharp } from "react-icons/io5";
+import { TiArrowSortedUp, TiArrowSortedDown } from "react-icons/ti";
+
 
 // Thư viện cho Xử lý tải ảnh lên ====================
 import { useDropzone } from 'react-dropzone';
@@ -74,6 +77,7 @@ const AboveNav = () => {
 }
 
 const ToolBar = ({
+    isUploaded,
     imagePos,
     imageSize,
     zoom,
@@ -108,6 +112,14 @@ const ToolBar = ({
     const minZoom = 0;
     const maxZoom = 300;
 
+
+    const imagePaths = [
+        "./signup.png",
+        "./user_profile.png",
+        "./test_1.jpg",
+        "./test_2.jpg"
+    ];
+
     useEffect(()=>{
         setX(imagePos.x);
         setY(imagePos.y);
@@ -125,7 +137,9 @@ const ToolBar = ({
     },[collapsed]);
 
     const switchCollapse = (value) => {
-        setCollapsed(value);
+        if (isUploaded) {
+            setCollapsed(value);
+        }
     }
 
     const turnOffAll = () => {
@@ -175,6 +189,16 @@ const ToolBar = ({
         }
     }
 
+    function ImageList({ imagePaths }) {
+        return (
+            <div id="imageList">
+                {imagePaths.map((imagePath, index) => (
+                    <img key={index} src={imagePath} alt={`Image ${index}`} />
+                ))}
+            </div>
+        );
+    }
+
     return (
         <div className="tool-bar">
             <div className="menu">
@@ -198,6 +222,20 @@ const ToolBar = ({
                 </ul>
             </div>
             <div id="extent-menu" ref={extentMenuRef}>
+                {barType === "collection" && (
+                    <div id="collection-place">
+                        <div id="search-bar">
+                            <IoSearchSharp id="search-icon"/>
+                            <input/>
+                        </div>
+                        <div id="date-sort">
+                            Date sort
+                            <TiArrowSortedUp className="icon"/>
+                            <TiArrowSortedDown className="icon"/>
+                        </div>
+                        <ImageList imagePaths={imagePaths}/>
+                    </div>
+                )}
                 {barType === "image" && (
                 <div id="image-tools-place">
                     <div className="tools-display">
@@ -289,6 +327,26 @@ const ToolBar = ({
                         </div>
                     </div>
                 )}
+                {barType === "erase" && (
+                    <div id="erase-tools-place">
+                        <div className="tools-display">
+                            <div>
+                                Choose objects
+                            </div>
+                            <div className="icons-place">
+                                <input type="checkbox" id="checkbox"/>
+                            </div>
+                        </div>
+                        <div className="tools-display">
+                            <div>
+                                Erase
+                            </div>
+                            <div id="erase-button-place">
+                                <button>Erase Objects</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )
@@ -307,7 +365,8 @@ const Picture = ({
     isFlipHorizon,
     isFlipVertical,
     collapsed,
-    rotate}) => {
+    rotate,
+    brightness}) => {
     const canvasRef = useRef(null);
     const CANVAS_WIDTH = 1300;
     const CANVAS_HEIGHT = 650;
@@ -395,6 +454,11 @@ const Picture = ({
                 let pos_x = imagePos.x;
                 let pos_y = imagePos.y;
 
+                if (rotate !== 0) {
+                    tmpCtx.translate(pos_x+drawImage.width/2, pos_y+drawImage.height/2);
+                    tmpCtx.rotate(-Math.PI * rotate / 180);
+                    tmpCtx.translate(-(pos_x+drawImage.width/2), -(pos_y+drawImage.height/2));
+                }
                 if (isFlipHorizon) {
                     tmpCtx.translate(drawImage.width, 0);
                     tmpCtx.scale(-1, 1);
@@ -405,23 +469,19 @@ const Picture = ({
                     tmpCtx.scale(1, -1);
                     pos_y = -pos_y;
                 }
-                if (rotate !== 0) {
-                    // tmpCtx.translate(tmpCanvas.width / 2, tmpCanvas.height / 2);
-                    tmpCtx.rotate(Math.PI * rotate / 180);
-                }
-                
                 tmpCtx.drawImage(drawImage, pos_x, pos_y, drawImage.width, drawImage.height);
-
+                
                 // làm mới màn hình
                 context.clearRect(0, 0, canvas.width, canvas.height);
-
-                // context.drawImage(drawImage, imagePos.x, imagePos.y, drawImage.width, drawImage.height);
+                
                 context.drawImage(tmpCanvas, 0,0, tmpCanvas.width, tmpCanvas.height);
+                context.filter = `brightness(${brightness * 100 / 50}%)`;
+                console.log("brightness: ", brightness);
             };
             // Lấy ảnh để hiển thị
             imgTag.src = image;
         }
-    },[image, zoom, imagePos, collapsed, isFlipHorizon, isFlipVertical, rotate]);
+    },[image, zoom, imagePos, collapsed, isFlipHorizon, isFlipVertical, rotate, brightness]);
 
     // ================ CHỨC NĂNG KÉO THẢ DI CHUYỂN HÌNH =================
     function handleMouseDown(event) {
@@ -439,7 +499,6 @@ const Picture = ({
             const rect = canvas.getBoundingClientRect();
             const mouseX = event.clientX - rect.left;
             const mouseY = event.clientY - rect.top;
-            // setCurrentPos({x: mouseX, y:mouseY});
             let dX = mouseX - startPos.x;
             let dY = mouseY - startPos.y;
             setImagePos({x: imagePos.x+dX, y:imagePos.y+dY});
@@ -452,7 +511,6 @@ const Picture = ({
             const rect = canvas.getBoundingClientRect();
             const mouseX = event.clientX - rect.left;
             const mouseY = event.clientY - rect.top;
-            // setCurrentPos({x: mouseX, y:mouseY});
             const dX = mouseX - startPos.x;
             const dY = mouseY - startPos.y;
 
@@ -466,7 +524,6 @@ const Picture = ({
     useEffect(()=>{
         if (isUploaded) {
             const canvas = canvasRef.current;
-            
             // Bắt đầu thêm các bộ lắng nghe sự kiện cho các sự kiện chuột
             canvas.addEventListener('mousedown', handleMouseDown);
             canvas.addEventListener('mouseup', handleMouseUp);
@@ -529,21 +586,32 @@ const Editor = () => {
     const [isFlipVertical, setIsFlipVertical] = useState(false);
     const [rotate, setRotate] = useState(0); // mỗi lần xoay 90 độ
 
+    // Chức năng chọn và xóa đối tượng trong ảnh ===========
+    const [isChooseObject, setIsChooseObject] = useState(false);
+    const [currentObject, setCurrentObject] = useState(null); // giá trị một bbox
+    const [bboxes, setBboxes] = useState(null); // danh sách các bbox
+    const [isErasing, setIsErasing] = useState(false);
+
     function rotateLeft (){
-        let angle = rotate - 90;
+        let angle = rotate + 90;
         if (angle >= 360) {
-            angle = 360 + angle;
+            angle = 360 - angle;
         }
         setRotate(angle);
     }
 
     function rotateRight () {
-        let angle = rotate + 90;
+        let angle = rotate - 90;
         if (angle < 0) {
-            angle = 360 - angle;
+            angle = 360 + angle;
         }
         setRotate(angle);
     }
+
+    // Cập nhật lại kích thước ảnh sau khi thực hiện xoay
+    useEffect(()=>{
+        setImageSize({w: imageSize.h, h: imageSize.w});
+    },[rotate]);
 
     return (
         <div className="editor">
@@ -552,6 +620,7 @@ const Editor = () => {
             </div>
             <div className="edit-place">
                 <ToolBar
+                    isUploaded={isUploaded}
                     image={image}
                     imageSize={imageSize}
                     imagePos={imagePos}
@@ -580,7 +649,8 @@ const Editor = () => {
                     isFlipHorizon={isFlipHorizon}
                     isFlipVertical={isFlipVertical}
                     collapsed={collapsed}
-                    rotate={rotate}/>
+                    rotate={rotate}
+                    brightness={brightness}/>
             </div>
         </div>
     )

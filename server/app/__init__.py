@@ -4,8 +4,8 @@ from cfg import ApplicationConfig
 from app.extension import db
 from app.models import user
 
+print("app_init")
 def create_app(config=ApplicationConfig):
-    print("app_init_")
     app = Flask(__name__)
     app.config.from_object(config)
     CORS(app, 
