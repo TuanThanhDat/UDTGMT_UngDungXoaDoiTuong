@@ -76,7 +76,7 @@ def jsonify_bboxes(bboxes):
 def image_file_to_numpy_array(image_file):
     return cv2.imdecode(np.fromstring(image_file.read(), np.uint8), cv2.IMREAD_COLOR)
 
-from face_detection import RetinaFace
+# from face_detection import RetinaFace
 def detect_face(image):
     '''
     Parameters:
@@ -86,35 +86,39 @@ def detect_face(image):
         + bboxs: [list] danh sách các khung bao khuôn mặt cho từng 
                 khuôn mặt sắp xếp theo chiều giảm dần kích thước.
     '''
-    # gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-    # face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-    # faces = face_cascade.detectMultiScale(gray_image, 
-    #                                       scaleFactor=1.2, 
-    #                                       minNeighbors=5,
-    #                                       minSize=(30, 30))
-    # detector = dlib.get_frontal_face_detector()
-    # faces = detector(gray_image)
-    min_w = 50
-    min_h = 60
-    score_threshold = 0.6
+    gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    faces = face_cascade.detectMultiScale(gray_image, 
+                                          scaleFactor=1.2, 
+                                          minNeighbors=5,
+                                          minSize=(30, 30))
+    detector = dlib.get_frontal_face_detector()
+    faces = detector(gray_image)
+    for face in faces:
+        x, y, w, h = face
+        bboxes.append([x,y,w,h])
     
-    detector = RetinaFace()
-    copy_image = image
-    result = detector(copy_image)
-    bboxes = []
-    for face in result:
-        x1, y1, x2, y2 = list(face[0])
-        score = face[2]
-        print(face[2])
-        x1 = int(x1)
-        y1 = int(y1)
-        x2 = int(x2)
-        y2 = int(y2)
-        w = x2-x1
-        h = y2-y1
-        if w < min_w or h < min_h:
-            continue
-        if score < score_threshold:
-            continue
-        bboxes.append([x1,y1,w,h])
+    # min_w = 50
+    # min_h = 60
+    # score_threshold = 0.6
+    
+    # detector = RetinaFace()
+    # copy_image = image
+    # result = detector(copy_image)
+    # bboxes = []
+    # for face in result:
+    #     x1, y1, x2, y2 = list(face[0])
+    #     score = face[2]
+    #     print(face[2])
+    #     x1 = int(x1)
+    #     y1 = int(y1)
+    #     x2 = int(x2)
+    #     y2 = int(y2)
+    #     w = x2-x1
+    #     h = y2-y1
+    #     if w < min_w or h < min_h:
+    #         continue
+    #     if score < score_threshold:
+    #         continue
+    #     bboxes.append([x1,y1,w,h])
     return len(bboxes), bboxes

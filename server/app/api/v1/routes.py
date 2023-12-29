@@ -40,8 +40,6 @@ def display_photos():
     if (not user_controller.is_login(user_name, user_token)):
         return jsonify(message="User had sign out"), UNAUTHORIZED_CODE
     
-    
-    
     # try:
     #     # Lấy danh sách ảnh của người dùng hiện tại
     #     photos = Photo.query.filter_by(user_id=user_id).all()
