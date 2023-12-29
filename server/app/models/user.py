@@ -2,7 +2,7 @@
 # # sys.path.insert(1, '..')
 from uuid import uuid4
 from app.extension import db
-from .photo import Photo
+from app.models.photo import Photo
 import numpy as np
 
 def get_uuid():

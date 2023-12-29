@@ -24,7 +24,7 @@ UNAUTHORIZED_CODE = 401
 SERVER_ERROR_CODE = 500
 
 
-@app.route('/api/photos', methods=['GET'])
+@api_v1.route('/api/photos', methods=['GET'])
 def display_photos():
     
     user_name = request.form["user_name"]
@@ -55,7 +55,7 @@ def display_photos():
     #     return jsonify(message=str(e)), 500
 
 # Upload photo endpoint
-@app.route('/api/photos', methods=['POST'])
+@api_v1.route('/api/photos', methods=['POST'])
 def upload_photo():
     user_name = request.form["user_name"]
     user_token = request.form["user_token"]
