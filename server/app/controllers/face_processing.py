@@ -92,8 +92,7 @@ def detect_face(image):
                                           scaleFactor=1.2, 
                                           minNeighbors=5,
                                           minSize=(30, 30))
-    detector = dlib.get_frontal_face_detector()
-    faces = detector(gray_image)
+    bboxes = []
     for face in faces:
         x, y, w, h = face
         bboxes.append([x,y,w,h])
