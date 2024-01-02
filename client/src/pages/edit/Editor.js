@@ -446,16 +446,14 @@ const Picture = ({
     isDrawRemove,
     serverURL,
     isErasing,
-    setIsErasing,
-    isDefaultDisplay,
-    setIsDefaultDisplay}) => {
+    setIsErasing}) => {
     const canvasRef = useRef(null);
     const CANVAS_WIDTH = 1300;
     const CANVAS_HEIGHT = 650;
 
     // const maskRef = useRef(null);
 
-    // const [isDefaultDisplay, setIsDefaultDisplay] = useState(false);
+    const [isDefaultDisplay, setIsDefaultDisplay] = useState(false);
     const PADDING_W = 100; // 100px
     const PADDING_H = 50; // 50px
 
@@ -479,6 +477,7 @@ const Picture = ({
                     setImage(reader.result);
                     // Tải ảnh lên thành công và chuyển sang hiển thị ảnh
                     setIsUploaded(true);
+                    // setIsDefaultDisplay(true);
                     setIsDefaultDisplay(true);
                 }
             };
