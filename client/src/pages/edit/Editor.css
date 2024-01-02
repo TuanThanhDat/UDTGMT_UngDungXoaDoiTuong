@@ -339,15 +339,8 @@
     transition: var(--tran-03);
 }
 
-#erase-tools-place .icons-place {
-    /* background: red; */
-    width: auto;
-    height: 40px;
-    display: flex;
-    justify-content: left;
-    /* padding-left: 20px; */
-    margin-left: 10px;
-    margin-right: 10px;
+#choose-drawing-click {
+    background: var(--primary-color);
 }
 
 #erase-tools-place input[type="checkbox"] {
@@ -458,7 +451,6 @@
 /* Picture =================================================*/
 .picture {
     background: var(--body-color) ;
-    /* background: red; */
     height:100%;
     width: 100%;
     display: flex;

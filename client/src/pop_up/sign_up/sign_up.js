@@ -44,7 +44,7 @@ const SignUp = (props) => {
                 data.append("email",values["email"]);
                 data.append("password",values["password"]);
 
-                const resp = await httpClient.post("//localhost:5000/api/v1/signup", values);
+                const resp = await httpClient.post(`${props.serverURL}/api/v1/signup`, values);
                 console.log(resp);
                 props.setIsLogin(true);
                 props.setUserName(resp.data.user_name);

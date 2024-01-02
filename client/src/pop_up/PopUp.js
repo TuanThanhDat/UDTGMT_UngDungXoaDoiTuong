@@ -14,7 +14,8 @@ const PopUp = (props) => {
                     handleClose={props.handleClose}
                     setType={props.setType}
                     setUserName={props.setUserName}
-                    setUserToken={props.setUserToken}/>
+                    setUserToken={props.setUserToken}
+                    serverURL={props.serverURL}/>
             }
             {
                 (props.type == "FaceLogin") && 
@@ -23,7 +24,8 @@ const PopUp = (props) => {
                     handleClose={props.handleClose} 
                     setType={props.setType}
                     setUserName={props.setUserName}
-                    setUserToken={props.setUserToken}/>
+                    setUserToken={props.setUserToken}
+                    serverURL={props.serverURL}/>
             }
             {
                 (props.type == "SignUp") && 
@@ -32,7 +34,8 @@ const PopUp = (props) => {
                     handleClose={props.handleClose}
                     setType={props.setType}
                     setUserName={props.setUserName}
-                    setUserToken={props.setUserToken}/>
+                    setUserToken={props.setUserToken}
+                    serverURL={props.serverURL}/>
             }
             {
                 (props.type == "FaceSignUp") && 
@@ -40,7 +43,8 @@ const PopUp = (props) => {
                     handleClose={props.handleClose}
                     setType={props.setType}
                     userName={props.userName}
-                    userToken={props.userToken}/>
+                    userToken={props.userToken}
+                    serverURL={props.serverURL}/>
             }
         </>
     )

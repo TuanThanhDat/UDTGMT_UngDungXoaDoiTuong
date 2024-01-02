@@ -1,7 +1,5 @@
 import "./Editor.css";
 import { useEffect, useRef, useState } from "react";
-// import ToolBar from "./ToolBar";
-// import TopNavigate from '../../navigate/top_nav';
 import { BiBox, BiImage, BiSolidEraser, BiSave } from "react-icons/bi";
 import { TbAdjustmentsHorizontal } from "react-icons/tb";
 import { RiDownloadLine } from "react-icons/ri";
@@ -10,13 +8,39 @@ import { CgEditFlipH, CgEditFlipV } from "react-icons/cg";
 import { AiOutlineRotateLeft, AiOutlineRotateRight } from "react-icons/ai";
 import { IoSearchSharp } from "react-icons/io5";
 import { TiArrowSortedUp, TiArrowSortedDown } from "react-icons/ti";
+import { PiPaintBrushBold } from "react-icons/pi";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
+import httpClient from '../../httpClient';
+import PopUp from '../../pop_up/PopUp';
+import { useNavigate } from 'react-router-dom';
 
 // Thư viện cho Xử lý tải ảnh lên ====================
 import { useDropzone } from 'react-dropzone';
 
+const AboveNav = (props) => {
+    const [x, setX] = useState(0);
+    const [y, setY] = useState(0);
 
-const AboveNav = () => {
+    // POP UP =====================================
+    const navigate = useNavigate();
+
+    const [isOpen, setIsOpen] = useState(false);
+    const [popupType, setPopupType] = useState('')
+    const handleClick = (type) => {
+        if (type === "LogOut") {
+            props.setIsLogin(false);
+            navigate('/');
+        }
+        else {
+            setPopupType(type);
+            togglePopup();
+        }
+    }
+    const togglePopup = () => {
+        setIsOpen(!isOpen);
+    }
+
     const User = () => {
         useEffect(() => {
             const trigger = document.querySelector('#btn-user');
@@ -45,36 +69,56 @@ const AboveNav = () => {
                 </div>
                 <div className="dropdown-place">
                     <ul className="dropdown">
-                        <li>Face registration</li>
-                        <li>Sign out</li>
+                        <li onClick={()=>{handleClick("FaceSignUp")}}>Face registration</li>
+                        <li onClick={()=>{handleClick("LogOut")}}>Sign out</li>
                     </ul>
                 </div>
             </div>
         )
     };
 
+    useEffect(()=>{
+        setX(props.curPos.x);
+        setY(props.curPos.y);
+    },[props.curPos])
+
+
     return (
         <div className="above-nav">
+            {isOpen && <PopUp 
+                        type={popupType} 
+                        setType={setPopupType} 
+                        handleClose={togglePopup} 
+                        setIsLogin={props.setIsLogin}
+                        userName={props.userName}
+                        userToken={props.userToken}
+                        setUserName={props.setUserName}
+                        setUserToken={props.setUserToken}
+                        serverURL={props.serverURL}/>}
             <ul className="home">
-                <li className="btn-open-image">
+                <li className="btn-open-image" onClick={()=>{props.setIsOpenImage(true)}}>
                     <IoMdAdd className="icon"/>
                     <span className="text">Open image</span>
                 </li>
-                <li className="btn-save">
+                {/* <li className="btn-save">
                     <BiSave className="icon"/>
                     <span className="text">Save</span>
-                </li>
-                <li className="btn-download">
+                </li> */}
+                <li className="btn-download" onClick={()=>{props.setIsDownload(true)}}>
                     <RiDownloadLine className="icon" id="download"/>
                     <span className="text" id="download">Download</span>
                 </li>
+                {/* <li>
+                    <input type="text" value={x}/>
+                    <input type="text" value={y}/>
+                </li> */}
             </ul>
             <ul className="btn-user">
                 <User/>
             </ul>
         </div>
     )
-}
+};
 
 const ToolBar = ({
     isUploaded,
@@ -91,18 +135,22 @@ const ToolBar = ({
     collapsed,
     setCollapsed,
     rotateLeft,
-    rotateRight}) => {
+    rotateRight,
+    isChooseDraw,
+    setIsChooseDraw,
+    isDrawRemove,
+    setIsDrawRemove,
+    isErasing,
+    setIsErasing}) => {
 
     const [choiceCurrent, setChoiceCurrent] = useState(0); // 0: không có, 1: nút thứ nhất, ...
-    
+    const [barType, setBarType] = useState("");
+
     const extentMenuRef = useRef(null);
-    
     const collectRef = useRef(null);
     const imageRef = useRef(null);
     const adjustRef = useRef(null);
     const eraseRef = useRef(null);
-
-    const [barType, setBarType] = useState("");
 
     // ============ Biến cho lựa chọn Image ============
     const [x, setX] = useState(0);
@@ -112,6 +160,7 @@ const ToolBar = ({
     const minZoom = 0;
     const maxZoom = 300;
 
+    // ============ Biến cho lựa chọn Erase ============
 
     const imagePaths = [
         "./signup.png",
@@ -333,8 +382,29 @@ const ToolBar = ({
                             <div>
                                 Choose objects
                             </div>
-                            <div className="icons-place">
+                            <div className="icons-place" style={{justifyContent: "left"}}>
                                 <input type="checkbox" id="checkbox"/>
+                            </div>
+                        </div>
+                        <div className="tools-display">
+                            <div>
+                                Draw select {isChooseDraw && ("drawing")}
+                            </div>
+                            <div className="icons-place">
+                                <PiPaintBrushBold 
+                                    className="tools-icon" 
+                                    style={{marginTop:"10px"}}
+                                    id ={isChooseDraw ? "choose-drawing-click":"choose-drawing"}
+                                    onClick={()=>{setIsChooseDraw(!isChooseDraw)}}/>
+                                <RiDeleteBin6Line 
+                                    className="tools-icon" 
+                                    style={{marginTop:"10px"}}
+                                    onClick={()=>{
+                                        setIsDrawRemove(true);
+                                        if (isChooseDraw) {
+                                            setIsChooseDraw(false);
+                                        }
+                                    }}/>
                             </div>
                         </div>
                         <div className="tools-display">
@@ -342,7 +412,7 @@ const ToolBar = ({
                                 Erase
                             </div>
                             <div id="erase-button-place">
-                                <button>Erase Objects</button>
+                                <button onClick={()=>{setIsErasing(true)}}>Erase Objects</button>
                             </div>
                         </div>
                     </div>
@@ -355,6 +425,7 @@ const ToolBar = ({
 const Picture = ({
     image, 
     setImage,
+    imageSize,
     setImageSize, 
     zoom, 
     setZoom, 
@@ -366,17 +437,31 @@ const Picture = ({
     isFlipVertical,
     collapsed,
     rotate,
-    brightness}) => {
+    brightness,
+    isChooseDraw,
+    setIsChooseDraw,
+    maskRef,
+    curPos,
+    setCurPos,
+    isDrawRemove,
+    serverURL,
+    isErasing,
+    setIsErasing,
+    isDefaultDisplay,
+    setIsDefaultDisplay}) => {
     const canvasRef = useRef(null);
     const CANVAS_WIDTH = 1300;
     const CANVAS_HEIGHT = 650;
 
-    const [isDefaultDisplay, setIsDefaultDisplay] = useState(false);
+    // const maskRef = useRef(null);
+
+    // const [isDefaultDisplay, setIsDefaultDisplay] = useState(false);
     const PADDING_W = 100; // 100px
     const PADDING_H = 50; // 50px
-    
-    const [startPos, setStartPos] = useState({x: 0, y: 0});
+
+    // const [startPos, setStartPos] = useState({x: 0, y: 0});
     const [isDragging, setIsDragging] = useState(false);
+    const [isDrawing, setIsDrawing] = useState(false);
 
     // ================ CHỨC NĂNG KÉO THẢ TẢI HÌNH LÊN =================
     const onDrop = (acceptedFiles) => {
@@ -432,116 +517,294 @@ const Picture = ({
         setImagePos({x: pos_x, y: pos_y});
     }
 
+    const drawCanvas = () => {
+        const canvas = canvasRef.current;
+        const context = canvas.getContext("2d");
+        const maskCanvas = maskRef.current;
+
+        const imgTag = new Image();
+        imgTag.onload = () => {
+            if (isDefaultDisplay){
+                // Tính toán vị trí mặc định
+                getDefaultPositionAndZoom(imgTag);
+                setIsDefaultDisplay(false);
+            }
+            // zoom Hình cần hiển thị
+            const drawImage = zoomImage(imgTag, zoom);
+            
+            // Canvas phụ dùng để xử lý hiển thị ảnh lật
+            const tmpCanvas = document.createElement('canvas');
+            const tmpCtx = tmpCanvas.getContext("2d");
+            tmpCanvas.width = canvas.width;
+            tmpCanvas.height = canvas.height;
+            let pos_x = imagePos.x;
+            let pos_y = imagePos.y;
+
+            if (!collapsed) {
+                pos_x = pos_x - 120;
+            }
+
+            if (rotate !== 0) {
+                tmpCtx.translate(pos_x+drawImage.width/2, pos_y+drawImage.height/2);
+                tmpCtx.rotate(-Math.PI * rotate / 180);
+                tmpCtx.translate(-(pos_x+drawImage.width/2), -(pos_y+drawImage.height/2));
+            }
+            if (isFlipHorizon) {
+                tmpCtx.translate(drawImage.width, 0);
+                tmpCtx.scale(-1, 1);
+                pos_x = -pos_x;
+            }
+            if (isFlipVertical) {
+                tmpCtx.translate(0, drawImage.height);
+                tmpCtx.scale(1, -1);
+                pos_y = -pos_y;
+            }
+            tmpCtx.drawImage(drawImage, pos_x, pos_y, drawImage.width, drawImage.height);
+            
+            // làm mới màn hình 
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            
+            context.drawImage(tmpCanvas, 0,0, tmpCanvas.width, tmpCanvas.height);
+            context.drawImage(maskCanvas, 0, 0, maskCanvas.width+120, maskCanvas.height+120);
+            context.filter = `brightness(${brightness * 100 / 50}%)`;
+            // console.log("brightness: ", brightness);
+        };
+        // Lấy ảnh để hiển thị
+        imgTag.src = image;
+    };
+
     useEffect(()=>{
         if (image) {
-            const canvas = canvasRef.current;
-            const context = canvas.getContext("2d");
-            const imgTag = new Image();
-            imgTag.onload = () => {
-                if (isDefaultDisplay){
-                    // Tính toán vị trí mặc định
-                    getDefaultPositionAndZoom(imgTag);
-                    setIsDefaultDisplay(false);
-                }
-                // Hình cần hiển thị
-                const drawImage = zoomImage(imgTag, zoom);
-                
-                // Canvas phụ dùng để xử lý hiển thị ảnh lật
-                const tmpCanvas = document.createElement('canvas');
-                const tmpCtx = tmpCanvas.getContext("2d");
-                tmpCanvas.width = canvas.width;
-                tmpCanvas.height = canvas.height;
-                let pos_x = imagePos.x;
-                let pos_y = imagePos.y;
-
-                if (rotate !== 0) {
-                    tmpCtx.translate(pos_x+drawImage.width/2, pos_y+drawImage.height/2);
-                    tmpCtx.rotate(-Math.PI * rotate / 180);
-                    tmpCtx.translate(-(pos_x+drawImage.width/2), -(pos_y+drawImage.height/2));
-                }
-                if (isFlipHorizon) {
-                    tmpCtx.translate(drawImage.width, 0);
-                    tmpCtx.scale(-1, 1);
-                    pos_x = -pos_x;
-                }
-                if (isFlipVertical) {
-                    tmpCtx.translate(0, drawImage.height);
-                    tmpCtx.scale(1, -1);
-                    pos_y = -pos_y;
-                }
-                tmpCtx.drawImage(drawImage, pos_x, pos_y, drawImage.width, drawImage.height);
-                
-                // làm mới màn hình
-                context.clearRect(0, 0, canvas.width, canvas.height);
-                
-                context.drawImage(tmpCanvas, 0,0, tmpCanvas.width, tmpCanvas.height);
-                context.filter = `brightness(${brightness * 100 / 50}%)`;
-                console.log("brightness: ", brightness);
-            };
-            // Lấy ảnh để hiển thị
-            imgTag.src = image;
+            drawCanvas();
         }
-    },[image, zoom, imagePos, collapsed, isFlipHorizon, isFlipVertical, rotate, brightness]);
+    },[isDefaultDisplay, image, zoom, imagePos, collapsed, isFlipHorizon, isFlipVertical, rotate, brightness, isDrawRemove]);
 
     // ================ CHỨC NĂNG KÉO THẢ DI CHUYỂN HÌNH =================
-    function handleMouseDown(event) {
-        setIsDragging(true);
+    // function handleMouseDown(e) {
+    //     setIsDragging(true);
+    //     const canvas = canvasRef.current;
+    //     const rect = canvas.getBoundingClientRect();
+    //     const mouseX = e.clientX - rect.left;
+    //     const mouseY = e.clientY - rect.top;
+    //     setStartPos({x: mouseX, y:mouseY});
+    //     setCurPos({x:mouseX-imagePos.x, y:mouseY-imagePos.y});
+    // }
+
+    // function handleMouseMove(e) {
+    //     const canvas = canvasRef.current;
+    //     const rect = canvas.getBoundingClientRect();
+    //     const mouseX = e.clientX - rect.left;
+    //     const mouseY = e.clientY - rect.top;
+    //     if (isDragging) {
+    //         let dX = mouseX - startPos.x;
+    //         let dY = mouseY - startPos.y;
+    //         setImagePos({x: imagePos.x+dX, y:imagePos.y+dY});
+    //     }
+    //     setCurPos({x:mouseX-imagePos.x, y:mouseY-imagePos.y});
+    // }
+
+    // function handleMouseUp(e){
+    //     const canvas = canvasRef.current;
+    //     const rect = canvas.getBoundingClientRect();
+    //     const mouseX = e.clientX - rect.left;
+    //     const mouseY = e.clientY - rect.top;
+    //     if (isDragging) {
+    //         const dX = mouseX - startPos.x;
+    //         const dY = mouseY - startPos.y;
+    //         setImagePos({x: imagePos.x+dX, y:imagePos.y+dY});
+    //         setIsDragging(false);
+    //         setStartPos({x:0, y:0});
+    //     }
+    //     setCurPos({x:mouseX-imagePos.x, y:mouseY-imagePos.y});
+    // }
+
+    const startDrawing = (e) => {
+        const maskCanvas = maskRef.current;
+        const maskCtx = maskCanvas.getContext('2d');
+        const canvas = canvasRef.current;
+
+        maskCtx.lineCap = 'round';
+        maskCtx.lineWidth = 20;
+        maskCtx.strokeStyle = 'rgb(0, 0, 255)';
+        setIsDrawing(true);
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const x = mouseX;
+        const y = mouseY;
+        setCurPos({x:x,y:y});
+        maskCtx.beginPath();
+        maskCtx.moveTo(x, y);
+    };
+
+    const drawing = (e) => {
         const canvas = canvasRef.current;
         const rect = canvas.getBoundingClientRect();
-        const mouseX = event.clientX - rect.left;
-        const mouseY = event.clientY - rect.top;
-        setStartPos({x: mouseX, y:mouseY});
-    }
-
-    function handleMouseMove(event) {
-        if (isDragging) {
-            const canvas = canvasRef.current;
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = event.clientX - rect.left;
-            const mouseY = event.clientY - rect.top;
-            let dX = mouseX - startPos.x;
-            let dY = mouseY - startPos.y;
-            setImagePos({x: imagePos.x+dX, y:imagePos.y+dY});
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const x = mouseX;
+        const y = mouseY;
+        if (isDrawing) {
+            const maskCanvas = maskRef.current;
+            // maskCanvas.width = canvas.width;
+            const maskCtx = maskCanvas.getContext('2d');
+            maskCtx.lineTo(x,y);
+            maskCtx.stroke();
+            drawCanvas();
         }
-    }
+        setCurPos({x:x,y:y});
+    };
 
-    function handleMouseUp(event){
-        if (isDragging) {
-            const canvas = canvasRef.current;
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = event.clientX - rect.left;
-            const mouseY = event.clientY - rect.top;
-            const dX = mouseX - startPos.x;
-            const dY = mouseY - startPos.y;
+    const stopDrawing = () => {
+        const maskCanvas = maskRef.current;
+        const maskCtx = maskCanvas.getContext('2d');
+        maskCtx.closePath();
+        setIsDrawing(false);
+    };
 
-            setImagePos({x: imagePos.x+dX, y:imagePos.y+dY});
-
-            setIsDragging(false);
-            setStartPos({x:0, y:0});
-        }
-    }
-    
     useEffect(()=>{
-        if (isUploaded) {
-            const canvas = canvasRef.current;
-            // Bắt đầu thêm các bộ lắng nghe sự kiện cho các sự kiện chuột
-            canvas.addEventListener('mousedown', handleMouseDown);
-            canvas.addEventListener('mouseup', handleMouseUp);
-            canvas.addEventListener('mousemove', handleMouseMove);
+        // Kéo thả di chuyển ảnh
+        // if (isUploaded && !isChooseDraw) {
+            // const canvas = canvasRef.current;
+            // // Bắt đầu thêm các bộ lắng nghe sự kiện cho các sự kiện chuột
+            // canvas.addEventListener('mousedown', handleMouseDown);
+            // canvas.addEventListener('mouseup', handleMouseUp);
+            // canvas.addEventListener('mousemove', handleMouseMove);
     
-            // Trả về một hàm làm sạch (cleanup) để loại bỏ các bộ lắng nghe sự kiện khi thành phần bị xóa hoặc các dependency thay đổi
+            // // Trả về một hàm làm sạch (cleanup) để loại bỏ các bộ lắng nghe sự kiện khi thành phần bị xóa hoặc các dependency thay đổi
+            // return () => {
+            //     canvas.removeEventListener('mousedown', handleMouseDown); // Loại bỏ bộ lắng nghe sự kiện mousedown
+            //     canvas.removeEventListener('mouseup', handleMouseUp); // Loại bỏ bộ lắng nghe sự kiện mouseup
+            //     canvas.removeEventListener('mousemove', handleMouseMove); // Loại bỏ bộ lắng nghe sự kiện mousemove
+            // };
+        // }
+        // Tô vùng màu
+        if (isChooseDraw) {
+            const canvas = canvasRef.current;
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', drawing);
+            canvas.addEventListener('mouseup', stopDrawing);
+
             return () => {
-                canvas.removeEventListener('mousedown', handleMouseDown); // Loại bỏ bộ lắng nghe sự kiện mousedown
-                canvas.removeEventListener('mouseup', handleMouseUp); // Loại bỏ bộ lắng nghe sự kiện mouseup
-                canvas.removeEventListener('mousemove', handleMouseMove); // Loại bỏ bộ lắng nghe sự kiện mousemove
+                canvas.removeEventListener('mousedown', startDrawing);
+                canvas.removeEventListener('mousemove', drawing);
+                canvas.removeEventListener('mouseup', stopDrawing);
             };
         }
-    },[isUploaded, isDragging]);
+    },[isUploaded, isDragging, isChooseDraw, isDrawing]);
+
+
+    //  ==============================================
+    // TẠO ẢNH MASK 
+    function getMaskImage(imageData, threshold){
+        const width = imageData.width;
+        const height = imageData.height;
+        const maskData = new Uint8ClampedArray(width * height * 4);
+        for (let i = 0; i < imageData.data.length; i += 4) {
+            const average = (imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2]) / 3;
+            maskData[i] = average > threshold ? 255 : 0; // Gán giá trị 0 hoặc 255 thay vì 1 hoặc 0
+            maskData[i + 1] = average > threshold ? 255 : 0;
+            maskData[i + 2] = average > threshold ? 255 : 0;
+            maskData[i + 3] = 255;
+        }
+        return new ImageData(maskData, width, height);
+    }
+
+    function scaleImageData(imageData) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        // const width = imageData.width;
+        // const height = imageData.height;
+        const newWidth = imageSize.w;
+        const newHeight = imageSize.h;
+        // canvas.width = newWidth;
+        // canvas.height = newHeight;
+
+        const newImageData = ctx.createImageData(newWidth, newHeight);
+        newImageData.data.set(imageData);
+        return newImageData;
+    }
+
+    function imageDataToDataURL(imageData) {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+    
+        // Đặt kích thước canvas phù hợp với imageData
+        canvas.width = imageData.width;
+        canvas.height = imageData.height;
+    
+        // Đặt dữ liệu hình ảnh cho canvas
+        context.putImageData(imageData, 0, 0);
+    
+        // Chuyển đổi canvas thành Data URL
+        const dataURL = canvas.toDataURL(); // Có thể thêm định dạng hình ảnh vào đây (ví dụ 'image/jpeg')
+    
+        return dataURL;
+    }
+    
+    function downloadImageFromURL(imageURL, fileName) {
+        fetch(imageURL)
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => console.error('Download failed:', error));
+    }
+
+    const handleSendMask = async () => {
+        const canvas = canvasRef.current;
+        const maskCanvas = maskRef.current;
+        const maskCtx = maskCanvas.getContext("2d");
+
+        const imageData = maskCtx.getImageData(imagePos.x, imagePos.y, Math.floor(imageSize.w*zoom/100), Math.floor(imageSize.h*zoom/100))
+        console.log("OK 1");
+        const scaledImageData = scaleImageData(imageData);
+        console.log("OK 2");
+        const maskImageData = getMaskImage(scaledImageData, 128);
+        console.log("OK 3");
+        const maskImageURL = imageDataToDataURL(maskImageData);
+        console.log("OK 4");
+
+        const url = imageDataToDataURL(scaledImageData);
+        downloadImageFromURL(url,"mask.png");
+        // downloadImageFromURL(image,"image.png");
+
+        const data = new FormData();
+        data.append("image",image);
+        data.append("mask",maskImageURL);
+
+        try {
+            const resp = await httpClient.post(`${serverURL}/api/v1/erase-object`, data);
+            alert(resp.data.message);
+        }
+        catch (error) {
+            console.log(error.data.message);
+            alert(error.data.message);
+        }
+    };
+
+    useEffect(()=>{
+        if (isErasing) {
+            handleSendMask();
+            setIsErasing(false);
+        }
+    },[isErasing]);
+
+
+    //  ==============================================
 
     useEffect(()=>{
         if (!collapsed) {
             const canvas = canvasRef.current;
             canvas.width = CANVAS_WIDTH - 250;
+            const maskCanvas = maskRef.current;
+            maskCanvas.width = CANVAS_WIDTH - 250;
         }
     },[collapsed]);
 
@@ -564,21 +827,31 @@ const Picture = ({
                         width={collapsed ? CANVAS_WIDTH : CANVAS_WIDTH+100}
                         height={CANVAS_HEIGHT}
                         />
+                    <canvas 
+                        ref={maskRef} 
+                        style={{display: "none"}} 
+                        height={CANVAS_HEIGHT} 
+                        width={collapsed ? CANVAS_WIDTH : CANVAS_WIDTH+100}
+                        />
                 </div>
             )}
         </div>
     )
 };
 
-const Editor = () => {
+const Editor = (props) => {
     const [collapsed, setCollapsed] = useState(true);
 
     // Biến cho phần ảnh xử lý ===========
+    const fileInputRef = useRef(null);
+    const [isOpenImage, setIsOpenImage] = useState(false);
     const [isUploaded, setIsUploaded] = useState(false);
     const [image, setImage] = useState(null);
     const [imageSize, setImageSize] = useState({w: 0, h:0});
     const [zoom, setZoom] = useState(20);
     const [imagePos, setImagePos] = useState({x: 0, y: 0});
+    const [isDownload, setIsDownload] = useState(false);
+    const [isDefaultDisplay, setIsDefaultDisplay] = useState(true);
 
     // Chức năng chỉnh sửa ảnh ===========
     const [brightness, setBrightness] = useState(50);
@@ -590,7 +863,13 @@ const Editor = () => {
     const [isChooseObject, setIsChooseObject] = useState(false);
     const [currentObject, setCurrentObject] = useState(null); // giá trị một bbox
     const [bboxes, setBboxes] = useState(null); // danh sách các bbox
+    const [isChooseDraw, setIsChooseDraw] = useState(false);
+    const [isDrawRemove, setIsDrawRemove] = useState(false);
+    const maskRef = useRef(null);
+
     const [isErasing, setIsErasing] = useState(false);
+
+    const [curPos, setCurPos] = useState({x: 0, y:0});
 
     function rotateLeft (){
         let angle = rotate + 90;
@@ -613,10 +892,93 @@ const Editor = () => {
         setImageSize({w: imageSize.h, h: imageSize.w});
     },[rotate]);
 
+    useEffect(()=>{
+        if (maskRef && isDrawRemove){
+            const maskCanvas = maskRef.current;
+            const maskCtx = maskCanvas.getContext("2d");
+            maskCtx.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
+            setIsDrawRemove(false);
+        }
+    },[isDrawRemove]);
+
+
+    function downloadImageFromURL(imageURL, fileName) {
+        fetch(imageURL)
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => console.error('Download failed:', error));
+    }
+
+    useEffect(()=>{
+        if (isDownload){
+            if (isUploaded) {
+                downloadImageFromURL(image, "download.png");
+            }
+            setIsDownload(false);
+        }
+    },[isDownload]);
+
+    // CHỨC NĂNG TẢI ẢNH LÊN
+    const handleImageUpload = () => {
+        fileInputRef.current.click();
+    }
+
+    const handleFileUpload = (e) => {
+        const selectedFile = e.target.files[0];
+        if (selectedFile) {
+            const reader = new FileReader();
+            reader.onload= () => {
+                if (reader.readyState===2){
+                    const imgTag = new Image();
+                    imgTag.src = reader.result;
+                    imgTag.onload = () => {
+                        // Nếu là tệp ảnh
+                        if (imgTag.width > 0 && imgTag.height > 0) {
+                            setImageSize({w: imgTag.width, h: imgTag.height});
+                            // Lưu ảnh vào biến image
+                            setImage(reader.result);
+                            // Tải ảnh lên thành công và chuyển sang hiển thị ảnh
+                            setIsUploaded(true);
+                            setIsDefaultDisplay(true);
+                        }
+                    };
+                }
+            }
+            reader.readAsDataURL(selectedFile);
+        }
+    }
+
+    useEffect(()=>{
+        if (isOpenImage) {
+            handleImageUpload();
+            setIsOpenImage(false);
+        }
+    },[isOpenImage]);
+
     return (
         <div className="editor">
             <div className="nav">
-                <AboveNav/>
+                <AboveNav 
+                    curPos={curPos}
+                    imagePos={imagePos}
+                    isLogin={props.isLogin} 
+                    setIsLogin={props.setIsLogin}
+                    userName={props.userName}
+                    userToken={props.userToken}
+                    setUserName={props.setUserName}
+                    setUserToken={props.setUserToken}
+                    serverURL={props.serverURL}
+                    setIsDownload={setIsDownload}
+                    setIsOpenImage={setIsOpenImage}
+                    handleImageOpen={handleImageUpload}/>
             </div>
             <div className="edit-place">
                 <ToolBar
@@ -635,10 +997,19 @@ const Editor = () => {
                     collapsed={collapsed}
                     setCollapsed={setCollapsed}
                     rotateLeft={rotateLeft}
-                    rotateRight={rotateRight}/>
+                    rotateRight={rotateRight}
+                    isChooseDraw={isChooseDraw}
+                    setIsChooseDraw={setIsChooseDraw}
+                    isDrawRemove={isDrawRemove}
+                    setIsDrawRemove={setIsDrawRemove}
+                    isErasing={isErasing}
+                    setIsErasing={setIsErasing}
+                    isDefaultDisplay={isDefaultDisplay}
+                    setIsDefaultDisplay={setIsDefaultDisplay}/>
                 <Picture 
                     image={image} 
                     setImage={setImage}
+                    imageSize={imageSize}
                     setImageSize={setImageSize}
                     isUploaded={isUploaded}
                     setIsUploaded={setIsUploaded}
@@ -650,8 +1021,23 @@ const Editor = () => {
                     isFlipVertical={isFlipVertical}
                     collapsed={collapsed}
                     rotate={rotate}
-                    brightness={brightness}/>
+                    brightness={brightness}
+                    isChooseDraw={isChooseDraw}
+                    setIsChooseDraw={setIsChooseDraw}
+                    maskRef={maskRef}
+                    curPos={curPos}
+                    setCurPos={setCurPos}
+                    isDrawRemove={isDrawRemove}
+                    serverURL={props.serverURL}
+                    isErasing={isErasing}
+                    setIsErasing={setIsErasing}/>
             </div>
+            <input
+                type='file'
+                accept='image/*'
+                style={{display: 'none'}}
+                ref={fileInputRef}
+                onChange={handleFileUpload}/>
         </div>
     )
 }

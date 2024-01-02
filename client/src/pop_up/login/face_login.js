@@ -119,7 +119,7 @@ const FaceLogin = (props) => {
 
     const handleLogin = async (data) => {
         try {
-            const resp = await httpClient.post("//localhost:5000/api/v1/face-login", data);
+            const resp = await httpClient.post(`${props.serverURL}/api/v1/face-login`, data);
             console.log(resp.data);
             props.setIsLogin(true);
             props.setUserName(resp.data.user_name);

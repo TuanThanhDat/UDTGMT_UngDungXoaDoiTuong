@@ -6,19 +6,6 @@ import "./landing.css";
 import TopNavigate from '../../navigate/top_nav';
 
 const Landing = (props) => {
-
-    // const [isOpen, setIsOpen] = useState(false);
-    // const [popupType, setPopupType] = useState()
-
-    // const handleClick = (type) => {
-    //     setPopupType(type);
-    //     togglePopup();
-    // }
-
-    // const togglePopup = () => {
-    //     setIsOpen(!isOpen);
-    // }
-
     return (
         <div className='landing-box'>
             <TopNavigate 
@@ -27,7 +14,8 @@ const Landing = (props) => {
                 userName={props.userName}
                 userToken={props.userToken}
                 setUserName={props.setUserName}
-                setUserToken={props.setUserToken}/>
+                setUserToken={props.setUserToken}
+                serverURL={props.serverURL}/>
             {/* <WebcamFaceDetectionComponent/> */}
         </div>
     )

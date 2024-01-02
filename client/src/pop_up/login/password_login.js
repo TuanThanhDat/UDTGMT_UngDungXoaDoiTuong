@@ -29,13 +29,13 @@ const PasswordLogin = props => {
         }
         else {
             try {
-                const resp = await httpClient.post("//localhost:5000/api/v1/login", values);
+                const resp = await httpClient.post(`${props.serverURL}/api/v1/login`, values);
                 console.log(resp);
                 props.setIsLogin(true);
                 props.setUserName(resp.data.user_name);
                 props.setUserToken(resp.data.user_token);
                 props.handleClose();
-                navigate("/")
+                navigate("/editor")
             } 
             catch(error) {
                 if (error.response.status !== 200) {

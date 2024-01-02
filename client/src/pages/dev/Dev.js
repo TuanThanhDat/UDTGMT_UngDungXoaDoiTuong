@@ -5,14 +5,18 @@ const Dev = () => {
 
     const fileInputRef = useRef(null);
     const canvasRef = useRef(null);
+    const maskRef = useRef(null);
 
     const [isDrawing, setIsDrawing] = useState(false);// tô vẽ 
     const [isCheck, setIsCheck] = useState(false);    // chọn checkbox
+    const [showMask, setShowMark] = useState(false);
+    const [isRemove, setIsRemove] = useState(false);
 
+    // ==============================================
+    // CHỨC NĂNG TẢI ẢNH LÊN
     const handleImageUpload = () => {
         fileInputRef.current.click();
     }
-
     const handleFileUpload = (e) => {
         const selectedFile = e.target.files[0];
         if (selectedFile) {
@@ -25,7 +29,8 @@ const Dev = () => {
             reader.readAsDataURL(selectedFile);
         }
     }
-
+    // ==============================================
+    // VẼ ẢNH
     useEffect(()=>{
         if (image) {
             const canvas = canvasRef.current;
@@ -38,42 +43,61 @@ const Dev = () => {
                 cxt.drawImage(img, 0, 0, 500, 500);
             };
         }
-    },[image]);
+        if (showMask) {
+            applyMask();
+        }
+    },[image, showMask]);
 
+    // ==============================================
+    // CHỨC NĂNG VẼ
     const handleDrawStatus = () => {
         setIsCheck(!isCheck);
     };
 
-    // Vẽ vùng đối tượng
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
         if (!isCheck) return;
 
-        const ctx = canvas.getContext('2d');
-        ctx.globalCompositeOperation = 'destination-out';
-        // Thay đổi ngòi tô
-        // Tạo mask bằng cách vẽ một hình tròn có màu đỏ và độ trong suốt
-        ctx.lineWidth = 30;
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = 'rgba(0, 0, 200, 0.01)';
+        const maskCanvas = maskRef.current;
+        const maskCtx = maskCanvas.getContext('2d');
+
+        maskCtx.lineCap = 'round';
+        maskCtx.lineWidth = 20;
+        maskCtx.globalAlpha = 1; // Độ trong suốt của màu sắc
+        maskCtx.strokeStyle = 'rgba(0, 0, 255, 0.5)';
 
         const startDrawing = (e) => {
             setIsDrawing(true);
-            ctx.beginPath();
-            ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+            const x = e.clientX - canvas.offsetLeft;
+            const y = e.clientY - canvas.offsetTop;
+            maskCtx.beginPath();
+            maskCtx.moveTo(x, y);
         };
 
         const draw = (e) => {
             if (isDrawing) {
-                ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
-                ctx.stroke();
+                // maskCtx.globalCompositeOperation = 'destination-out';
+                maskCtx.lineCap = 'round';
+                maskCtx.lineWidth = 20;
+                maskCtx.globalAlpha = 1; // Độ trong suốt của màu sắc
+                maskCtx.strokeStyle = 'rgba(0, 0, 255, 0.5)';
+
+                const x = e.clientX - canvas.offsetLeft;
+                const y = e.clientY - canvas.offsetTop;
+
+                maskCtx.lineTo(x,y);
+                maskCtx.stroke();
+
+                if (showMask) {
+                    applyMask();
+                }
             }
         };
 
         const stopDrawing = () => {
             setIsDrawing(false);
-            ctx.closePath();
+            maskCtx.closePath();
         };
 
         canvas.addEventListener('mousedown', startDrawing);
@@ -87,19 +111,8 @@ const Dev = () => {
         };
     }, [isCheck, isDrawing]);
 
-    const handleSaveImage = () => {
-        const canvas = canvasRef.current;
-        if (image) {
-            const img = canvas.toDataURL('image/png');
-            const link = document.createElement('a');
-            link.download = 'drawing.png';
-            link.href = img;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    };
-
+    // ==============================================
+    // CHỨC NĂNG LƯU ẢNH MASK
     const handleSaveMaskImage = () => {
         const canvas = canvasRef.current;
         const maskCanvas = document.createElement('canvas');
@@ -121,13 +134,116 @@ const Dev = () => {
         }, 'image/png');
     };
 
+    // ==============================================
+    // CHỨC NĂNG HIỂN THỊ MASK
+    const applyMask = () => {
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+        const maskCanvas = maskRef.current;
+    
+        const img = new Image();
+        img.src = image;
+        img.onload = () => {
+            canvas.width = 500;
+            canvas.height = 500;
+            ctx.drawImage(img, 0, 0, 500, 500);
+            ctx.drawImage(maskCanvas, 0, 0, 500, 500);
+        };
+    };
+
+    const handleShowMark = () => {
+        setShowMark(!showMask);
+    }
+
+    // ==============================================
+    // CHỨC NĂNG XÓA VÙNG VẼ
+    const handleRemoveStatus = () => {
+        setIsRemove(!isRemove);
+    };
+
+    useEffect(()=> {
+        if (isRemove) {
+            // setIsDrawing(false);
+            setIsCheck(false);
+            const canvas = canvasRef.current;
+            if (!canvas) return;
+            if (!isCheck) return;
+
+            const maskCanvas = maskRef.current;
+            const maskCtx = maskCanvas.getContext('2d');
+
+            maskCtx.lineCap = 'round';
+            maskCtx.lineWidth = 20;
+            maskCtx.globalAlpha = 1; // Độ trong suốt của màu sắc
+            maskCtx.strokeStyle = 'rgba(0, 0, 255, 0.5)';
+
+            const startRemove = (e) => {
+                setIsRemove(true);
+                const x = e.clientX - canvas.offsetLeft;
+                const y = e.clientY - canvas.offsetTop;
+                maskCtx.beginPath();
+                maskCtx.moveTo(x, y);
+            };
+
+            const remove = (e) => {
+                if (isRemove) {
+                    // maskCtx.globalCompositeOperation = 'destination-out';
+                    maskCtx.lineCap = 'round';
+                    maskCtx.lineWidth = 20;
+                    maskCtx.globalAlpha = 1; // Độ trong suốt của màu sắc
+                    maskCtx.strokeStyle = 'rgba(0, 0, 0, 1)';
+
+                    const x = e.clientX - canvas.offsetLeft;
+                    const y = e.clientY - canvas.offsetTop;
+
+                    maskCtx.lineTo(x,y);
+                    maskCtx.stroke();
+
+                    if (showMask) {
+                        applyMask();
+                    }
+                }
+            };
+
+            const stopRemove = () => {
+                setIsRemove(false);
+                maskCtx.closePath();
+            };
+
+            canvas.addEventListener('mousedown', startRemove);
+            canvas.addEventListener('mousemove', remove);
+            canvas.addEventListener('mouseup', stopRemove);
+
+            return () => {
+                canvas.removeEventListener('mousedown', startRemove);
+                canvas.removeEventListener('mousemove', remove);
+                canvas.removeEventListener('mouseup', stopRemove);
+            };
+        }
+    },[isRemove]);
+    // ==============================================
+
     return (
         <div>
             <button onClick={handleImageUpload} style={{margin: "10px"}}>Upload</button>
-            <button onClick={handleSaveMaskImage}>Download</button>
+            <label>draw</label>
             <input
+                checked={isCheck}
                 type="checkbox"
                 onChange={handleDrawStatus}
+                style={{transform: 'scale(1.5)',margin: '10px'}}/>
+            <button onClick={handleSaveMaskImage} style={{margin:"10px"}}>Download</button>
+            <label>show</label>
+            <input
+                type="checkbox"
+                checked={showMask}
+                onChange={handleShowMark}
+                style={{transform: 'scale(1.5)',margin: '10px'}}/>
+            <label>remove</label>
+            <input
+                type="checkbox"
+                checked={isRemove}
+                onChange={handleRemoveStatus}
                 style={{transform: 'scale(1.5)',margin: '10px'}}/>
             <br></br>
             <input
@@ -140,6 +256,11 @@ const Dev = () => {
             <canvas 
                 ref={canvasRef}
                 style={{ border: '1px solid black' }}></canvas>)}
+            <canvas
+                ref={maskRef}
+                style={{ display: 'none'}}
+                width={500}
+                height={500}></canvas>
             {isCheck && (
                 <div>
                     Is choose

@@ -24,21 +24,21 @@ UNAUTHORIZED_CODE = 401
 SERVER_ERROR_CODE = 500
 
 
-@api_v1.route('/api/photos', methods=['GET'])
-def display_photos():
+# @api_v1.route('/api/photos', methods=['GET'])
+# def display_photos():
     
-    user_name = request.form["user_name"]
-    user_token = request.form["user_token"]
-    filter = request.form["filter"]
+#     user_name = request.form["user_name"]
+#     user_token = request.form["user_token"]
+#     filter = request.form["filter"]
     
-     # Kiểm tra người dùng có tồn tại
-    user = user_controller.check_user_name_exist(user_name)
-    if (user is None):
-        return jsonify(message="Not found user name"), UNAUTHORIZED_CODE
+#      # Kiểm tra người dùng có tồn tại
+#     user = user_controller.check_user_name_exist(user_name)
+#     if (user is None):
+#         return jsonify(message="Not found user name"), UNAUTHORIZED_CODE
     
-    # Kiểm tra người dùng đã đăng nhập
-    if (not user_controller.is_login(user_name, user_token)):
-        return jsonify(message="User had sign out"), UNAUTHORIZED_CODE
+#     # Kiểm tra người dùng đã đăng nhập
+#     if (not user_controller.is_login(user_name, user_token)):
+#         return jsonify(message="User had sign out"), UNAUTHORIZED_CODE
     
     # try:
     #     # Lấy danh sách ảnh của người dùng hiện tại
@@ -53,30 +53,44 @@ def display_photos():
     #     return jsonify(message=str(e)), 500
 
 # Upload photo endpoint
-@api_v1.route('/api/photos', methods=['POST'])
-def upload_photo():
-    user_name = request.form["user_name"]
-    user_token = request.form["user_token"]
-    base64_image = request.form["image"]
+# @api_v1.route('/api/photos', methods=['POST'])
+# def upload_photo():
+#     user_name = request.form["user_name"]
+#     user_token = request.form["user_token"]
+#     base64_image = request.form["image"]
     
-    # Kiểm tra người dùng có tồn tại
-    user = user_controller.check_user_name_exist(user_name)
-    if (user is None):
-        return jsonify(message="Not found user name"), UNAUTHORIZED_CODE
+#     # Kiểm tra người dùng có tồn tại
+#     user = user_controller.check_user_name_exist(user_name)
+#     if (user is None):
+#         return jsonify(message="Not found user name"), UNAUTHORIZED_CODE
     
-    # Kiểm tra người dùng đã đăng nhập
-    if (not user_controller.is_login(user_name, user_token)):
-        return jsonify(message="User had sign out"), UNAUTHORIZED_CODE
+#     # Kiểm tra người dùng đã đăng nhập
+#     if (not user_controller.is_login(user_name, user_token)):
+#         return jsonify(message="User had sign out"), UNAUTHORIZED_CODE
 
-    # Kiểm tra có gửi ảnh lên
-    if base64_image == '':
-        return jsonify(message='No image selected'), BAD_REQUEST_CODE
+#     # Kiểm tra có gửi ảnh lên
+#     if base64_image == '':
+#         return jsonify(message='No image selected'), BAD_REQUEST_CODE
     
-    # Lưu ảnh tải lên vào cơ sở dữ liệu
-    user_id = user.id
-    upload_status = photo_controller.upload(user_id, base64_image)
+#     # Lưu ảnh tải lên vào cơ sở dữ liệu
+#     user_id = user.id
+#     upload_status = photo_controller.upload(user_id, base64_image)
     
-    return jsonify(message="Upload photo successfully"), CREATED_SUCCESSED_CODE
+#     return jsonify(message="Upload photo successfully"), CREATED_SUCCESSED_CODE
+
+@api_v1.route('/erase-object', methods=["POST"])
+def erase_object():
+    base64_image = request.form["image"]
+    base64_mask = request.form["mask"]
+    
+    image = base64_image_to_numpy(base64_image)
+    mask = base64_image_to_numpy(base64_mask)
+    
+    response = {
+        "message": "Erase objects successfully!!!"
+    }
+    return jsonify(response), PROCESSING_SUCCESSED_CODE
+
 
 @api_v1.route('/face-sign-up', methods=["POST"])
 def face_sign_up_api():
@@ -86,9 +100,9 @@ def face_sign_up_api():
         name = request.form["user_name"]
 
         image = base64_image_to_numpy(base64_image)
-    
+
         n_faces, bboxes = detect_face(image)
-        
+
         if n_faces==1:
             isSuccessed = user_controller.face_sign_up(
                 name,

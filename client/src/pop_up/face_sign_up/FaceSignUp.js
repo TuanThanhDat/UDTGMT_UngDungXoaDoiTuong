@@ -25,7 +25,7 @@ const FaceSignUp = (props) => {
 
     const handleSignUp = async (data) => {
         try {
-            const resp = await httpClient.post("//localhost:5000/api/v1/face-sign-up", data);
+            const resp = await httpClient.post(`${props.serverURL}/api/v1/face-sign-up`, data);
             console.log(resp.data);
             alert(resp.data.message);
             handleClose();

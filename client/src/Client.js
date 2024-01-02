@@ -7,7 +7,7 @@ import Dev from './pages/dev/Dev';
 
 
 function Client() {
-
+    const serverURL = "//localhost:5000";
     const [userName, setUserName] = useState(null);
     const [userToken, setUserToken] = useState(null);
     const [isLogin, setIsLogin] = useState(false);
@@ -24,7 +24,8 @@ function Client() {
                             userName={userName}
                             userToken={userToken}
                             setUserName={setUserName}
-                            setUserToken={setUserToken}/>}
+                            setUserToken={setUserToken}
+                            serverURL={serverURL}/>}
                 />
                 <Route path='/editor' 
                     element={<Editor 
@@ -33,7 +34,8 @@ function Client() {
                         userName={userName}
                         userToken={userToken}
                         setUserName={setUserName}
-                        setUserToken={setUserToken}/>}
+                        setUserToken={setUserToken}
+                        serverURL={serverURL}/>}
                 />
                 <Route path='/dev' 
                     element={<Dev/>}

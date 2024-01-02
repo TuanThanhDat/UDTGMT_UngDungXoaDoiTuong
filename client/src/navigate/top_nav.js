@@ -1,8 +1,8 @@
-    import './top_nav.css';
-    import {useState} from 'react';
-    import PopUp from '../pop_up/PopUp';
+import './top_nav.css';
+import {useState} from 'react';
+import PopUp from '../pop_up/PopUp';
 
-    const NavButton = (props) => {
+const NavButton = (props) => {
     if (props.show){
         return (
         <button className='nav-btn' onClick={props.onClick}>
@@ -50,7 +50,8 @@
                         userName={props.userName}
                         userToken={props.userToken}
                         setUserName={props.setUserName}
-                        setUserToken={props.setUserToken}/>}
+                        setUserToken={props.setUserToken}
+                        serverURL={props.serverURL}/>}
             <div className='top-nav'>
             <div className='top-nav-dropdown'>
                 <div className='dropdown'>
